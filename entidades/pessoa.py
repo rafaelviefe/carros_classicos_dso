@@ -4,29 +4,23 @@ from carro_classico import CarroClassico
 
 class Pessoa(ABC):
     @abstractmethod
-    def __init__(self, nome: str, carros: List[CarroClassico]):
+    def __init__(self, nome: str, cnpj: str, carros: List[CarroClassico] = None):
         pass
 
     @property
+    @abstractmethod
     def nome(self) -> str:
-        return self.__nome
-
+        pass
+    
     @nome.setter
+    @abstractmethod
     def nome(self, nome: str):
-        if not isinstance(nome, str):
-            raise TypeError("O nome deve ser uma string")
-        self.__nome = nome
-
+        pass
+  
+    @abstractmethod
     def add_carro(self, carro: CarroClassico):
-        if not isinstance(carro, CarroClassico):
-            raise TypeError("O carro deve ser uma instância da classe Carro")
-        if carro in self.__carros:
-            raise ValueError("O carro já está na lista")
-        self.__carros.append(carro)
+        pass
 
+    @abstractmethod
     def del_carro(self, carro: CarroClassico):
-        if not isinstance(carro, CarroClassico):
-            raise TypeError("O carro deve ser uma instância da classe Carro")
-        if carro not in self.__carros:
-            raise ValueError("O carro não está na lista")
-        self.__carros.remove(carro)
+        pass
