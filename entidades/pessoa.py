@@ -4,7 +4,7 @@ from carro_classico import CarroClassico
 
 class Pessoa(ABC):
     @abstractmethod
-    def __init__(self, nome: str, cnpj: str, carros: List[CarroClassico] = None):
+    def __init__(self, nome: str, documento: str, carros: List[CarroClassico] = None):
         pass
 
     @property
@@ -23,4 +23,14 @@ class Pessoa(ABC):
 
     @abstractmethod
     def del_carro(self, carro: CarroClassico):
+        pass
+
+    @property
+    @abstractmethod
+    def documento(self) -> str:
+        pass
+
+    @documento.setter
+    @abstractmethod
+    def documento(self, documento: str):
         pass

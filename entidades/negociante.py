@@ -2,20 +2,20 @@ from typing import List
 from carro_classico import CarroClassico
 from pessoa import Pessoa
 
-class Negociante(Pessoa):
-    def __init__(self, nome: str, cpf: str, carros: List[CarroClassico] = None):
+class PessoaJuridica(Pessoa):
+    def __init__(self, nome: str, documento: str, carros: List[CarroClassico] = None):
         if not isinstance(nome, str):
             raise TypeError("O nome deve ser uma string")
         if carros is None:
             carros = []
         elif not all(isinstance(carro, CarroClassico) for carro in carros):
             raise TypeError("Todos os carros devem ser instâncias da classe Carro")
-        if not isinstance(cpf, str):
+        if not isinstance(documento, str):
             raise TypeError("O CPF deve ser uma string")
 
         self.__nome = nome
         self.__carros = carros
-        self.__cpf = cpf
+        self.__documento = documento
 
     @property
     def nome(self) -> str:
@@ -42,11 +42,13 @@ class Negociante(Pessoa):
         self.__carros.remove(carro)
 
     @property
-    def cpf(self) -> str:
-        return self.__cpf
+    def documento(self) -> str:
+        return self.__documento
 
-    @cpf.setter
-    def cpf(self, cpf: str):
-        if not isinstance(cpf, str):
-            raise TypeError("O cpf deve ser uma string")
-        self.__cpf = cpf
+    @documento.setter
+    def documento(self, documento: str):
+        if not isinstance(documento, str):
+            raise TypeError("O CPF deve ser uma string")
+        self.__documento = documento
+
+    # função tratamento CPF
