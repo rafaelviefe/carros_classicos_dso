@@ -1,17 +1,10 @@
+from documentacao import Documentacao
 from motor import Motor
 from roda import Roda
 from pintura import Pintura
 
 class Carro:
     def __init__(self, vin: str, placa: str, modelo: str, ano: int, quilometragem: float, motor: Motor, roda: Roda, pintura: Pintura, cambio: str):
-        if not isinstance(vin, str):
-            raise TypeError("O VIN deve ser uma string")
-        if not isinstance(placa, str):
-            raise TypeError("A placa deve ser uma string")
-        if not isinstance(modelo, str):
-            raise TypeError("O modelo deve ser uma string")
-        if not isinstance(ano, int):
-            raise TypeError("O ano deve ser um número inteiro")
         if not isinstance(quilometragem, float):
             raise TypeError("A quilometragem deve ser um número decimal")
         if not isinstance(motor, Motor):
@@ -22,11 +15,8 @@ class Carro:
             raise TypeError("A pintura deve ser uma instância da classe Pintura")
         if not isinstance(cambio, str):
             raise TypeError("O câmbio deve ser uma string")
-        
-        self.__vin = vin
-        self.__placa = placa
-        self.__modelo = modelo
-        self.__ano = ano
+
+        self.__documentacao = Documentacao(vin, placa, modelo, ano)
         self.__quilometragem = quilometragem
         self.__motor = motor
         self.__roda = roda
@@ -34,26 +24,8 @@ class Carro:
         self.__cambio = cambio
 
     @property
-    def vin(self) -> str:
-        return self.__vin
-
-    @property
-    def placa(self) -> str:
-        return self.__placa
-
-    @placa.setter
-    def placa(self, placa: str):
-        if not isinstance(placa, str):
-            raise TypeError("A placa deve ser uma string")
-        self.__placa = placa
-
-    @property
-    def modelo(self) -> str:
-        return self.__modelo
-
-    @property
-    def ano(self) -> int:
-        return self.__ano
+    def documentacao(self) -> Documentacao:
+        return self.__documentacao
 
     @property
     def quilometragem(self) -> float:
