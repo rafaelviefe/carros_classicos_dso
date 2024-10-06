@@ -2,7 +2,7 @@ from typing import List
 from carro_classico import CarroClassico
 from pessoa import Pessoa
 
-class PessoaJuridica(Pessoa):
+class Negociante(Pessoa):
     def __init__(self, nome: str, documento: str, carros: List[CarroClassico] = None):
         if not isinstance(nome, str):
             raise TypeError("O nome deve ser uma string")
