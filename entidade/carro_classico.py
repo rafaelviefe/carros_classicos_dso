@@ -4,20 +4,15 @@ from roda import Roda
 from pintura import Pintura
 
 class CarroClassico(Carro):
-    def __init__(self, vin: str, placa: str, modelo: str, ano: int, quilometragem: float, motor: Motor, roda: Roda, pintura: Pintura, cambio: str, unidades_existentes: int, preco_compra: float, preco_venda: float):
-        
+    def __init__(self, vin: str, placa: str, modelo: str, ano: int, quilometragem: float, motor: Motor, roda: Roda, pintura: Pintura, cambio: str, unidades_existentes: int):
         super().__init__(vin, placa, modelo, ano, quilometragem, motor, roda, pintura, cambio)
-        
+
         if not isinstance(unidades_existentes, int):
             raise TypeError("Unidades existentes deve ser um número inteiro")
-        if not isinstance(preco_compra, float):
-            raise TypeError("O preço de compra deve ser um número decimal")
-        if not isinstance(preco_venda, float):
-            raise TypeError("O preço de venda deve ser um número decimal")
 
         self.__unidades_existentes = unidades_existentes
-        self.__preco_compra = preco_compra
-        self.__preco_venda = preco_venda
+        self.__precos_compra = []
+        self.__precos_venda = []
 
     @property
     def unidades_existentes(self) -> int:
@@ -29,22 +24,28 @@ class CarroClassico(Carro):
             raise TypeError("Unidades existentes deve ser um número inteiro")
         self.__unidades_existentes = unidades_existentes
 
-    @property
-    def preco_compra(self) -> float:
-        return self.__preco_compra
-
-    @preco_compra.setter
-    def preco_compra(self, preco_compra: float):
-        if not isinstance(preco_compra, float):
+    def add_preco_compra(self, preco: float):
+        if not isinstance(preco, float):
             raise TypeError("O preço de compra deve ser um número decimal")
-        self.__preco_compra = preco_compra
+        self.__precos_compra.append(preco)
+
+    def del_preco_compra(self, preco: float):
+        if preco in self.__precos_compra:
+            self.__precos_compra.remove(preco)
 
     @property
-    def preco_venda(self) -> float:
-        return self.__preco_venda
+    def precos_compra(self) -> list:
+        return self.__precos_compra
 
-    @preco_venda.setter
-    def preco_venda(self, preco_venda: float):
-        if not isinstance(preco_venda, float):
+    def add_preco_venda(self, preco: float):
+        if not isinstance(preco, float):
             raise TypeError("O preço de venda deve ser um número decimal")
-        self.__preco_venda = preco_venda
+        self.__precos_venda.append(preco)
+
+    def del_preco_venda(self, preco: float):
+        if preco in self.__precos_venda:
+            self.__precos_venda.remove(preco)
+
+    @property
+    def precos_venda(self) -> list:
+        return self.__precos_venda
