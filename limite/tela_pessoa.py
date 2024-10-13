@@ -71,14 +71,21 @@ class TelaPessoa:
         digito2 = calcula_digito(cnpj[:13], [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2])
 
         return cnpj[-2:] == f"{digito1}{digito2}"
+    
+    def pega_novo_nome(self):
+        novo_nome = input("Novo nome: ").strip()
+        while not novo_nome:
+            print("Nome inválido! O nome não pode ser vazio.")
+            novo_nome = input("Novo nome: ").strip()
+        return novo_nome
 
     def mostra_pessoa(self, dados_pessoa):
-        print("NOME DO NEGOCIANTE: ", dados_pessoa["nome"])
-        print("DOCUMENTO DO NEGOCIANTE: ", dados_pessoa["documento"])
+        print("Nome do cliente: ", dados_pessoa["nome"])
+        print("Documento do cliente: ", dados_pessoa["documento"])
         print("\n")
         for carro in dados_pessoa["carros"]:
-            print("MODELO: ", carro.documentacao.modelo)
-            print("ANO: ", carro.documentacao.ano)
+            print("Modelo: ", carro.documentacao.modelo)
+            print("Ano: ", carro.documentacao.ano)
             print("\n")
 
     def seleciona_pessoa(self):
