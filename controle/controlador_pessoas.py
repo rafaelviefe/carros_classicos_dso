@@ -49,7 +49,7 @@ class ControladorPessoas():
       return
     
     for pessoa in self.__pessoas:
-      self.__tela_pessoa.mostra_pessoa({"nome": pessoa.nome, "cpf": pessoa.cpf, "carros": pessoa.carros})
+      self.__tela_pessoa.mostra_pessoa({"nome": pessoa.nome, "documento": pessoa.documento, "carros": pessoa.carros})
 
   def exclui_pessoa(self):
     self.lista_pessoas()

@@ -36,6 +36,7 @@ class TelaPessoa:
 
         return {"nome": nome, "documento": documento}
 
+    # Remove all non-digit characters from the document string and then decides if it is a cpf or cnpj
     def validar_documento(self, documento: str) -> bool:
         documento = re.sub(r'\D', '', documento)
         if len(documento) == 11:
@@ -45,6 +46,7 @@ class TelaPessoa:
         else:
             return False
 
+    # Standard algorithm to validate cpf
     def validar_cpf(self, cpf: str) -> bool:
         if cpf == cpf[0] * len(cpf):
             return False
@@ -57,6 +59,7 @@ class TelaPessoa:
 
         return cpf[-2:] == f"{digito1}{digito2}"
 
+    # Standard algorithm to validate cnpj
     def validar_cnpj(self, cnpj: str) -> bool:
         if cnpj == cnpj[0] * len(cnpj):
             return False
@@ -86,13 +89,14 @@ class TelaPessoa:
         for carro in dados_pessoa["carros"]:
             print("Modelo: ", carro.documentacao.modelo)
             print("Ano: ", carro.documentacao.ano)
+            print("Vin: ", carro.documentacao.vin)
             print("\n")
 
     def seleciona_pessoa(self):
-        documento = input("Documento do negociante que deseja selecionar: ").strip()
+        documento = input("Documento da entidade que deseja selecionar: ").strip()
         while not documento:
             print("Documento inválido! O documento não pode ser vazio.")
-            documento = input("Documento do negociante que deseja selecionar: ").strip()
+            documento = input("Documento da entidade que deseja selecionar: ").strip()
 
         return documento
     
