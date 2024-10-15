@@ -36,7 +36,7 @@ class TelaPessoa:
 
         return {"nome": nome, "documento": documento}
 
-    # Remove all non-digit characters from the document string and then decides if it is a cpf or cnpj
+    # Remove todos os não digitos do documento e decide entre cpf e cnpj
     def validar_documento(self, documento: str) -> bool:
         documento = re.sub(r'\D', '', documento)
         if len(documento) == 11:
@@ -46,7 +46,7 @@ class TelaPessoa:
         else:
             return False
 
-    # Standard algorithm to validate cpf
+    # Algorítimo padrão para validar cpf
     def validar_cpf(self, cpf: str) -> bool:
         if cpf == cpf[0] * len(cpf):
             return False
@@ -59,7 +59,7 @@ class TelaPessoa:
 
         return cpf[-2:] == f"{digito1}{digito2}"
 
-    # Standard algorithm to validate cnpj
+    # Algorítimo padrão para validar cnpj
     def validar_cnpj(self, cnpj: str) -> bool:
         if cnpj == cnpj[0] * len(cnpj):
             return False
