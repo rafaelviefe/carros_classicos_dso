@@ -1,7 +1,7 @@
 class TelaCarroClassico:
     def tela_opcoes(self):
         opcao = -1  
-        while opcao not in [0, 1, 2, 3, 4]:
+        while opcao not in [0, 1, 2, 3, 4, 5]:
             try:
                 print("-------- CARROS CLÁSSICOS ----------")
                 print("Escolha a opcao")
@@ -9,10 +9,11 @@ class TelaCarroClassico:
                 print("2 - Alterar Carro")
                 print("3 - Listar Carros")
                 print("4 - Excluir Carro")
+                print("5 - Trocar Peças")
                 print("0 - Retornar")
 
                 opcao = int(input("Escolha a opcao: "))
-                if opcao not in [0, 1, 2, 3, 4]:
+                if opcao not in [0, 1, 2, 3, 4, 5]:
                     print("Opção inválida! Por favor, escolha uma opção válida.")
             except ValueError:
                 print("Entrada inválida! Por favor, insira um número inteiro.")

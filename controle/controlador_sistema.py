@@ -1,12 +1,14 @@
 from limite.tela_sistema import TelaSistema
 from controle.controlador_pessoas import ControladorPessoas
 from controle.controlador_carros_classicos import ControladorCarrosClassicos
+from controle.controlador_pecas import ControladorPecas
 
 class ControladorSistema:
 
     def __init__(self):
         self.__controlador_pessoas = ControladorPessoas(self)
         self.__controlador_carros_classicos = ControladorCarrosClassicos(self)
+        self.__controlador_pecas = ControladorPecas(self)
         self.__tela_sistema = TelaSistema()
 
     @property
@@ -17,6 +19,10 @@ class ControladorSistema:
     def controlador_carros_classicos(self):
         return self.__controlador_carros_classicos
 
+    @property
+    def controlador_pecas(self):
+        return self.__controlador_pecas
+
     def inicializa_sistema(self):
         self.abre_tela()
 
@@ -25,6 +31,9 @@ class ControladorSistema:
 
     def cadastro_carros(self):
         self.__controlador_carros_classicos.abre_tela()
+
+    def cadastro_carros(self):
+        self.__controlador_pecas.abre_tela()
 
     def encerra_sistema(self):
         exit(0)

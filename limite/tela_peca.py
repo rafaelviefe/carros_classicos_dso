@@ -1,7 +1,7 @@
 class TelaPeca:
     def tela_opcoes(self):
         opcao = -1  
-        while opcao not in [0, 1, 2, 3, 4, 0]:
+        while opcao not in [0, 1, 2, 3]:
             try:
                 print("-------- PEÇAS ----------")
                 print("Escolha a opção")
