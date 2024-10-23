@@ -1,5 +1,5 @@
-from carro_classico import CarroClassico
-from inspecao import Inspecao
+from entidade.carro_classico import CarroClassico
+from entidade.inspecao import Inspecao
 
 class AssocCarroInspecao:
     def __init__(self, id: int, carro: CarroClassico, inspecao: Inspecao):
