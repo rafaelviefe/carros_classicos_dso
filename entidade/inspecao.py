@@ -1,7 +1,6 @@
-from carro_classico import CarroClassico
-from inspecao import Inspecao
+from entidade.carro_classico import CarroClassico
 
-class AssocCarroInspecao:
+class Inspecao:
     def __init__(self, id: int, carro: CarroClassico, apto: bool, resultado: str):
         if not isinstance(id, int):
             raise TypeError("O ID deve ser um número inteiro")
