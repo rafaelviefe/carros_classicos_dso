@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List
-from carro_classico import CarroClassico
+from entidade.carro_classico import CarroClassico
 
 class Pessoa(ABC):
     @abstractmethod
