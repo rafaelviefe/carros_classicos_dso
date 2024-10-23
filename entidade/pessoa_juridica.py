@@ -1,6 +1,6 @@
 from typing import List
-from carro_classico import CarroClassico
-from pessoa import Pessoa
+from entidade.carro_classico import CarroClassico
+from entidade.pessoa import Pessoa
 
 class PessoaJuridica(Pessoa):
     def __init__(self, nome: str, documento: str, carros: List[CarroClassico] = None):
