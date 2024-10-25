@@ -60,10 +60,10 @@ class ControladorCarrosClassicos:
         )
 
         self.__carros.append(carro)
-        self.lista_carros()
+        self.print_lista_carros()
 
     def altera_carro(self):
-        self.lista_carros()
+        self.print_lista_carros()
         vin_carro = self.__tela_carro_classico.seleciona_carro()
         carro = self.pega_carro_por_vin(vin_carro)
 
@@ -72,12 +72,12 @@ class ControladorCarrosClassicos:
             carro.placa = novos_dados_carro["placa"]
             carro.quilometragem = novos_dados_carro["quilometragem"]
             carro.unidades_existentes = novos_dados_carro["unidades_existentes"]
-            self.lista_carros()
+            self.print_lista_carros()
         else:
             self.__tela_carro_classico.mostra_mensagem("ATENÇÃO: Carro não encontrado.")
 
     def troca_peca(self):
-        self.lista_carros()
+        self.print_lista_carros()
         vin_carro = self.__tela_carro_classico.seleciona_carro()
         carro = self.pega_carro_por_vin(vin_carro)
 
@@ -96,9 +96,9 @@ class ControladorCarrosClassicos:
         carro.pintura = pintura
 
         self.__tela_carro_classico.mostra_mensagem("Peças trocadas com sucesso!")
-        self.lista_carros()
+        self.print_lista_carros()
 
-    def lista_carros(self):
+    def print_lista_carros(self): 
         if not self.__carros:
             self.__tela_carro_classico.mostra_mensagem("A lista de carros está vazia.")
             return
@@ -112,13 +112,13 @@ class ControladorCarrosClassicos:
             })
 
     def exclui_carro(self):
-        self.lista_carros()
+        self.print_lista_carros()
         vin_carro = self.__tela_carro_classico.seleciona_carro()
         carro = self.pega_carro_por_vin(vin_carro)
 
         if carro is not None:
             self.__carros.remove(carro)
-            self.lista_carros()
+            self.print_lista_carros()
         else:
             self.__tela_carro_classico.mostra_mensagem("ATENÇÃO: Carro não encontrado.")
 
@@ -150,9 +150,13 @@ class ControladorCarrosClassicos:
             elif tipo_peca == "pintura" and carro.pintura.codigo_cor == identificador:
                 return True
         return False
+    
+    @property
+    def carros(self) -> list:
+        return self.__carros
 
     def abre_tela(self):
-        lista_opcoes = {1: self.inclui_carro, 2: self.altera_carro, 3: self.lista_carros, 4: self.exclui_carro, 5: self.troca_peca, 0: self.__controlador_sistema.abre_tela()}
+        lista_opcoes = {1: self.inclui_carro, 2: self.altera_carro, 3: self.print_lista_carros, 4: self.exclui_carro, 5: self.troca_peca, 0: self.__controlador_sistema.abre_tela()}
 
         continua = True
         while continua:
