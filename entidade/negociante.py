@@ -27,6 +27,10 @@ class Negociante(Pessoa):
             raise TypeError("O nome deve ser uma string")
         self.__nome = nome
 
+    @property
+    def carros(self) -> List[CarroClassico]:
+        return self.__carros
+
     def add_carro(self, carro: CarroClassico):
         if not isinstance(carro, CarroClassico):
             raise TypeError("O carro deve ser uma instância da classe Carro")

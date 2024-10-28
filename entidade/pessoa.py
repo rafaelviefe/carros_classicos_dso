@@ -16,6 +16,11 @@ class Pessoa(ABC):
     @abstractmethod
     def nome(self, nome: str):
         pass
+
+    @property
+    @abstractmethod
+    def carros(self) -> List[CarroClassico]:
+        pass
   
     @abstractmethod
     def add_carro(self, carro: CarroClassico):
