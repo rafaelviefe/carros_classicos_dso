@@ -10,16 +10,16 @@ class ControladorCarrosClassicos:
 
     def pega_carro_por_vin(self, vin: str):
         for carro in self.__carros:
-            if carro.vin == vin:
+            if carro.documentacao.vin == vin:
                 return carro
         return None
 
-    def obtem_e_verifica_pecas(self):
+    def obtem_e_verifica_pecas(self, carro_atual=""):
         pecas_carro = self.__tela_carro_classico.pega_pecas_carro()
 
-        motor = self.__controlador_sistema.controle_pecas.pega_motor_por_num(pecas_carro["num_motor"])
-        roda = self.__controlador_sistema.controle_pecas.pega_roda_por_num(pecas_carro["num_serie"])
-        pintura = self.__controlador_sistema.controle_pecas.pega_pintura_por_cod(pecas_carro["codigo_cor"])
+        motor = self.__controlador_sistema.controlador_pecas.pega_motor_por_num(pecas_carro["num_motor"])
+        roda = self.__controlador_sistema.controlador_pecas.pega_roda_por_num(pecas_carro["num_serie"])
+        pintura = self.__controlador_sistema.controlador_pecas.pega_pintura_por_cod(pecas_carro["codigo_cor"])
 
         if not motor or not roda or not pintura:
             self.__tela_carro_classico.mostra_mensagem("ATENÇÃO: Uma ou mais peças não foram encontradas. Verifique os códigos e tente novamente.")
@@ -60,24 +60,24 @@ class ControladorCarrosClassicos:
         )
 
         self.__carros.append(carro)
-        self.print_lista_carros()
+        self.lista_carros()
 
     def altera_carro(self):
-        self.print_lista_carros()
+        self.lista_carros()
         vin_carro = self.__tela_carro_classico.seleciona_carro()
         carro = self.pega_carro_por_vin(vin_carro)
 
         if carro is not None:
             novos_dados_carro = self.__tela_carro_classico.pega_alteracoes_carro()
-            carro.placa = novos_dados_carro["placa"]
+            carro.documentacao.placa = novos_dados_carro["placa"]
             carro.quilometragem = novos_dados_carro["quilometragem"]
             carro.unidades_existentes = novos_dados_carro["unidades_existentes"]
-            self.print_lista_carros()
+            self.lista_carros()
         else:
             self.__tela_carro_classico.mostra_mensagem("ATENÇÃO: Carro não encontrado.")
 
     def troca_peca(self):
-        self.print_lista_carros()
+        self.lista_carros()
         vin_carro = self.__tela_carro_classico.seleciona_carro()
         carro = self.pega_carro_por_vin(vin_carro)
 
@@ -85,7 +85,7 @@ class ControladorCarrosClassicos:
             self.__tela_carro_classico.mostra_mensagem("ATENÇÃO: Carro não encontrado.")
             return
 
-        motor, roda, pintura = self.obtem_e_verifica_pecas()
+        motor, roda, pintura = self.obtem_e_verifica_pecas(vin_carro)
 
         if not motor or not roda or not pintura:
             return
@@ -96,29 +96,29 @@ class ControladorCarrosClassicos:
         carro.pintura = pintura
 
         self.__tela_carro_classico.mostra_mensagem("Peças trocadas com sucesso!")
-        self.print_lista_carros()
+        self.lista_carros()
 
-    def print_lista_carros(self): 
+    def lista_carros(self): 
         if not self.__carros:
             self.__tela_carro_classico.mostra_mensagem("A lista de carros está vazia.")
             return
         
         for carro in self.__carros:
             self.__tela_carro_classico.mostra_carro({
-                "vin": carro.vin,
-                "modelo": carro.modelo,
-                "ano": carro.ano,
+                "vin": carro.documentacao.vin,
+                "modelo": carro.documentacao.modelo,
+                "ano": carro.documentacao.ano,
                 "unidades_existentes": carro.unidades_existentes
             })
 
     def exclui_carro(self):
-        self.print_lista_carros()
+        self.lista_carros()
         vin_carro = self.__tela_carro_classico.seleciona_carro()
         carro = self.pega_carro_por_vin(vin_carro)
 
         if carro is not None:
             self.__carros.remove(carro)
-            self.print_lista_carros()
+            self.lista_carros()
         else:
             self.__tela_carro_classico.mostra_mensagem("ATENÇÃO: Carro não encontrado.")
 
@@ -141,14 +141,15 @@ class ControladorCarrosClassicos:
 
         return False
 
-    def verifica_disponibilidade_peca(self, tipo_peca, identificador):
+    def verifica_disponibilidade_peca(self, tipo_peca, identificador, carro_atual=""):
         for carro in self.__carros:
-            if tipo_peca == "motor" and carro.motor.num_motor == identificador:
-                return True
-            elif tipo_peca == "roda" and carro.roda.num_serie == identificador:
-                return True
-            elif tipo_peca == "pintura" and carro.pintura.codigo_cor == identificador:
-                return True
+            if carro_atual == "" or carro.documentacao.vin != carro_atual:
+                if tipo_peca == "motor" and carro.motor.num_motor == identificador:
+                    return True
+                elif tipo_peca == "roda" and carro.roda.num_serie == identificador:
+                    return True
+                elif tipo_peca == "pintura" and carro.pintura.codigo_cor == identificador:
+                    return True
         return False
     
     @property

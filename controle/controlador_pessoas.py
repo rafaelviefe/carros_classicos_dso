@@ -68,17 +68,18 @@ class ControladorPessoas():
     pessoa = self.pega_pessoa_por_doc(doc_pessoa)
 
     if(pessoa is not None):
-      doc_carro, valor = self.__tela_pessoa.seleciona_carro()[0], self.__tela_pessoa.seleciona_carro()[1]
+      dados_compra = self.__tela_pessoa.seleciona_carro()
+      doc_carro, valor = dados_compra[0], dados_compra[1]
 
-      if self.__controlador_sistema.controle_carros_classicos.vende_carro(doc_carro, valor):
-        carro = self.__controlador_sistema.controle_carros_classicos.pega_carro_por_vin(doc_carro)
+      if self.__controlador_sistema.controlador_carros_classicos.vende_carro(doc_carro, valor):
+        carro = self.__controlador_sistema.controlador_carros_classicos.pega_carro_por_vin(doc_carro)
         pessoa.add_carro(carro)
         self.lista_pessoas()
 
       else:
-        self.__tela_amigo.mostra_mensagem("ATENCAO: Carro não encontrado ou já vendido")
+        self.__tela_pessoa.mostra_mensagem("ATENCAO: Carro não encontrado ou já vendido")
     else:
-      self.__tela_amigo.mostra_mensagem("ATENCAO: Pessoa não encontrada")
+      self.__tela_pessoa.mostra_mensagem("ATENCAO: Pessoa não encontrada")
 
   def registra_venda(self):
     self.lista_pessoas()
@@ -86,21 +87,21 @@ class ControladorPessoas():
     pessoa = self.pega_pessoa_por_doc(doc_pessoa)
 
     if(pessoa is not None):
-      doc_carro, valor = self.__tela_pessoa.seleciona_carro()[0], self.__tela_pessoa.seleciona_carro()[1]
+      dados_compra = self.__tela_pessoa.seleciona_carro()
+      doc_carro, valor = dados_compra[0], dados_compra[1]
 
-      if self.__controlador_sistema.controle_carros_classicos.compra_carro(doc_carro, valor):
-        carro = self.__controlador_sistema.controle_carros_classicos.pega_carro_por_vin(doc_carro)
-        pessoa.carros.del_carro(carro)
+      if self.__controlador_sistema.controlador_carros_classicos.compra_carro(doc_carro, valor):
+        carro = self.__controlador_sistema.controlador_carros_classicos.pega_carro_por_vin(doc_carro)
+        pessoa.del_carro(carro)
         self.lista_pessoas()
 
       else:
-        self.__tela_amigo.mostra_mensagem("ATENCAO: Carro não encontrado ou já comprado")
+        self.__tela_pessoa.mostra_mensagem("ATENCAO: Carro não encontrado ou já comprado")
     else:
-      self.__tela_amigo.mostra_mensagem("ATENCAO: Pessoa não encontrada")
+      self.__tela_pessoa.mostra_mensagem("ATENCAO: Pessoa não encontrada")
 
   def abre_tela(self):
-    lista_opcoes = {1: self.inclui_pessoa, 2: self.altera_pessoa, 3: self.lista_pessoas, 4: self.exclui_pessoa, 5: self.registra_compra, 6: self.registra_venda, 0: 
-    self.__controlador_sistema.abre_tela()}
+    lista_opcoes = {1: self.inclui_pessoa, 2: self.altera_pessoa, 3: self.lista_pessoas, 4: self.exclui_pessoa, 5: self.registra_compra, 6: self.registra_venda, 0: self.__controlador_sistema.abre_tela}
 
     continua = True
     while continua:

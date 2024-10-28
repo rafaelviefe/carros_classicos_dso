@@ -4,7 +4,6 @@ from controle.controlador_carros_classicos import ControladorCarrosClassicos
 from controle.controlador_assoc_carro_inspecao import ControladorAssocCarroInspecao
 from controle.controlador_pecas import ControladorPecas
 
-
 class ControladorSistema:
 
     def __init__(self):
