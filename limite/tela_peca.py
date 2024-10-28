@@ -190,11 +190,13 @@ class TelaPeca:
         print("Número de Camadas: ", dados_pintura["camadas"])
         print("\n")
 
-    def seleciona_peca(self):
+    def seleciona_tipo(self):
+        print("\n")
         print("Selecione o tipo de peça:")
         print("1 - Motor")
         print("2 - Roda")
         print("3 - Pintura")
+        print("\n")
 
         tipo_peca = -1
         while tipo_peca not in [1, 2, 3]:
@@ -206,25 +208,31 @@ class TelaPeca:
                 print("Entrada inválida! Por favor, insira um número inteiro.")
 
         if tipo_peca == 1:
+            return "motor"
+        elif tipo_peca == 2:
+            return "roda"
+        return "pintura"
+
+    def seleciona_peca(self):
+        tipo = self.seleciona_tipo()
+
+        if tipo == "motor":
             identificador = input("Informe o número do motor: ").strip()
             while not identificador:
                 print("Número do motor inválido! O campo não pode ser vazio.")
                 identificador = input("Informe o número do motor: ").strip()
-            tipo = "motor"
 
-        elif tipo_peca == 2:
+        elif tipo == "roda":
             identificador = input("Informe o número de série da roda: ").strip()
             while not identificador:
                 print("Número de série inválido! O campo não pode ser vazio.")
                 identificador = input("Informe o número de série da roda: ").strip()
-            tipo = "roda"
 
-        elif tipo_peca == 3:
+        else:
             identificador = input("Informe o código da cor da pintura: ").strip()
             while not identificador:
                 print("Código da cor inválido! O campo não pode ser vazio.")
                 identificador = input("Informe o código da cor da pintura: ").strip()
-            tipo = "pintura"
 
         return tipo, identificador
 

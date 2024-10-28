@@ -26,13 +26,13 @@ class ControladorCarrosClassicos:
             return None, None, None
 
         # Verificação de disponibilidade das peças
-        if self.verifica_disponibilidade_peca("motor", motor.num_motor):
+        if self.verifica_disponibilidade_peca("motor", motor.num_motor, carro_atual):
             self.__tela_carro_classico.mostra_mensagem("ATENÇÃO: Este motor já está associado a outro carro.")
             return None, None, None
-        if self.verifica_disponibilidade_peca("roda", roda.num_serie):
+        if self.verifica_disponibilidade_peca("roda", roda.num_serie, carro_atual):
             self.__tela_carro_classico.mostra_mensagem("ATENÇÃO: Esta roda já está associada a outro carro.")
             return None, None, None
-        if self.verifica_disponibilidade_peca("pintura", pintura.codigo_cor):
+        if self.verifica_disponibilidade_peca("pintura", pintura.codigo_cor, carro_atual):
             self.__tela_carro_classico.mostra_mensagem("ATENÇÃO: Esta pintura já está associada a outro carro.")
             return None, None, None
 
@@ -118,6 +118,8 @@ class ControladorCarrosClassicos:
 
         if carro is not None:
             self.__carros.remove(carro)
+            self.__controlador_sistema.controlador_pessoas.remove_carro(vin_carro)
+            self.__tela_carro_classico.mostra_mensagem("Carro removido com sucesso!")
             self.lista_carros()
         else:
             self.__tela_carro_classico.mostra_mensagem("ATENÇÃO: Carro não encontrado.")
@@ -125,7 +127,7 @@ class ControladorCarrosClassicos:
     def vende_carro(self, vin, preco):
         carro = self.pega_carro_por_vin(vin)
 
-        if carro is not None and len(carro.preco_venda) <= len(carro.preco_compra):
+        if carro is not None and len(carro.precos_venda) <= len(carro.precos_compra):
             carro.add_preco_venda(preco)
             return True
 
@@ -134,8 +136,8 @@ class ControladorCarrosClassicos:
     def compra_carro(self, vin, preco):
         carro = self.pega_carro_por_vin(vin)
 
-        if carro is not None and len(carro.preco_venda) == len(carro.preco_compra):
-            if self.__controlador_sistema.controle_inspecao.fazer_inspecao(carro):
+        if carro is not None and len(carro.precos_venda) == len(carro.precos_compra):
+            if self.__controlador_sistema.controlador_inspecao.fazer_inspecao(carro):
                 carro.add_preco_venda(preco)
                 return True
 
@@ -157,7 +159,7 @@ class ControladorCarrosClassicos:
         return self.__carros
 
     def abre_tela(self):
-        lista_opcoes = {1: self.inclui_carro, 2: self.altera_carro, 3: self.print_lista_carros, 4: self.exclui_carro, 5: self.troca_peca, 0: self.__controlador_sistema.abre_tela()}
+        lista_opcoes = {1: self.inclui_carro, 2: self.altera_carro, 3: self.lista_carros, 4: self.exclui_carro, 5: self.troca_peca, 0: self.__controlador_sistema.abre_tela}
 
         continua = True
         while continua:
