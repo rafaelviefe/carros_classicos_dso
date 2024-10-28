@@ -1,12 +1,22 @@
 class TelaSistema:
-    #fazer aqui tratamento dos dados, caso a entrada seja diferente do esperado
     def tela_opcoes(self):
-        print("-------- Concessionária Clássica ---------")
-        print("Escolha sua opcao")
-        print("1 - Clientes")
-        print("2 - Carros")
-        print("3 - Inspeções")
-        print("4 - Peças")
-        print("0 - Finalizar sistema")
-        opcao = int(input("Escolha a opcao:"))
+        opcao = -1
+        while opcao not in [0, 1, 2, 3, 4]:
+            try:
+                print("\n")
+                print("-------- Concessionária Clássica ---------")
+                print("Escolha sua opcao")
+                print("1 - Clientes")
+                print("2 - Carros")
+                print("3 - Inspeções")
+                print("4 - Peças")
+                print("0 - Finalizar sistema")
+                print("\n")
+                
+                opcao = int(input("Escolha a opcao: "))
+                if opcao not in [0, 1, 2, 3, 4]:
+                    print("Opção inválida! Por favor, escolha uma opção válida.")
+            except ValueError:
+                print("Entrada inválida! Por favor, insira um número inteiro.")
+
         return opcao
