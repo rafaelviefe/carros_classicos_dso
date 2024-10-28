@@ -74,6 +74,7 @@ class ControladorPessoas():
       if self.__controlador_sistema.controlador_carros_classicos.vende_carro(doc_carro, valor):
         carro = self.__controlador_sistema.controlador_carros_classicos.pega_carro_por_vin(doc_carro)
         pessoa.add_carro(carro)
+        self.__tela_pessoa.mostra_mensagem("Venda realizada com sucesso!")
         self.lista_pessoas()
 
       else:
@@ -93,6 +94,7 @@ class ControladorPessoas():
       if self.__controlador_sistema.controlador_carros_classicos.compra_carro(doc_carro, valor):
         carro = self.__controlador_sistema.controlador_carros_classicos.pega_carro_por_vin(doc_carro)
         pessoa.del_carro(carro)
+        self.__tela_pessoa.mostra_mensagem("Compra realizada com sucesso!")
         self.lista_pessoas()
 
       else:
@@ -100,6 +102,14 @@ class ControladorPessoas():
     else:
       self.__tela_pessoa.mostra_mensagem("ATENCAO: Pessoa não encontrada")
 
+  def remove_carro(self, vin: str) -> bool:
+      for pessoa in self.__pessoas:
+          for carro in pessoa.carros:
+              if carro.documentacao.vin == vin:
+                  pessoa.carros.remove(carro)
+                  return True
+      return False
+    
   def abre_tela(self):
     lista_opcoes = {1: self.inclui_pessoa, 2: self.altera_pessoa, 3: self.lista_pessoas, 4: self.exclui_pessoa, 5: self.registra_compra, 6: self.registra_venda, 0: self.__controlador_sistema.abre_tela}
 
