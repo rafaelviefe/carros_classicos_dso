@@ -5,6 +5,7 @@ class TelaPessoa:
         opcao = -1  
         while opcao not in [0, 1, 2, 3, 4, 5, 6]:
             try:
+                print("\n")
                 print("-------- PESSOAS ----------")
                 print("Escolha a opcao")
                 print("1 - Incluir Pessoa")
@@ -14,6 +15,7 @@ class TelaPessoa:
                 print("5 - Registrar Compra")
                 print("6 - Registrar Venda")
                 print("0 - Retornar")
+                print("\n")
 
                 opcao = int(input("Escolha a opcao: "))
                 if opcao not in [0, 1, 2, 3, 4, 5, 6]:
@@ -83,20 +85,22 @@ class TelaPessoa:
         return novo_nome
 
     def mostra_pessoa(self, dados_pessoa):
+        print("\n")
         print("Nome do cliente: ", dados_pessoa["nome"])
         print("Documento do cliente: ", dados_pessoa["documento"])
         print("\n")
         for carro in dados_pessoa["carros"]:
+            print("\n")
             print("Modelo: ", carro.documentacao.modelo)
             print("Ano: ", carro.documentacao.ano)
             print("Vin: ", carro.documentacao.vin)
             print("\n")
 
     def seleciona_pessoa(self):
-        documento = input("Documento da entidade que deseja selecionar: ").strip()
+        documento = input("Documento do cliente que deseja selecionar: ").strip()
         while not documento:
             print("Documento inválido! O documento não pode ser vazio.")
-            documento = input("Documento da entidade que deseja selecionar: ").strip()
+            documento = input("Documento do cliente que deseja selecionar: ").strip()
 
         return documento
     

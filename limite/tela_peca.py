@@ -3,12 +3,14 @@ class TelaPeca:
         opcao = -1  
         while opcao not in [0, 1, 2, 3]:
             try:
+                print("\n")
                 print("-------- PEÇAS ----------")
                 print("Escolha a opção")
                 print("1 - Incluir Peça")
                 print("2 - Listar Peças")
                 print("3 - Excluir Peça")
                 print("0 - Retornar")
+                print("\n")
 
                 opcao = int(input("Escolha a opção: "))
                 if opcao not in [0, 1, 2, 3]:
@@ -160,6 +162,7 @@ class TelaPeca:
         }
     
     def mostra_motor(self, dados_motor):
+        print("\n")
         print("Número do Motor: ", dados_motor["num_motor"])
         print("Potência: ", dados_motor["potencia"])
         print("Cilindrada: ", dados_motor["cilindrada"])
@@ -169,6 +172,7 @@ class TelaPeca:
         print("\n")
 
     def mostra_roda(self, dados_roda):
+        print("\n")
         print("Número de Série: ", dados_roda["num_serie"])
         print("Largura: ", dados_roda["largura"])
         print("Perfil: ", dados_roda["perfil"])
@@ -179,6 +183,7 @@ class TelaPeca:
         print("\n")
 
     def mostra_pintura(self, dados_pintura):
+        print("\n")
         print("Código da Cor: ", dados_pintura["codigo_cor"])
         print("Cor: ", dados_pintura["cor"])
         print("Tipo de Pintura: ", dados_pintura["tipo"])
