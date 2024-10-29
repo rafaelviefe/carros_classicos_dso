@@ -7,7 +7,7 @@ class TelaAssocCarroInspecao:
             try:
                 print("-------- ASSOCIAÇÃO CARROS E INSPEÇÃO ----------")
                 print("Escolha a opcao")
-                print("1 - Criar associação")
+                print("1 - Incluir associação")
                 print("2 - Listar associação")
                 print("3 - Excluir associação")
                 print("0 - Retornar")
@@ -20,34 +20,55 @@ class TelaAssocCarroInspecao:
 
         return opcao
         
-    def pegar_dados(self):
+    def pegar_vin(self):
         # tratar exceçao
-        placa = input("Placa do carro: ").strip()
-        while not self.validar_placa(placa):
-            print("Documento inválido! Por favor, insira uma placa válida.")
-            placa = input("Placa do carro: ").strip()
-        id = input("Id da inspeção: ").strip()
-        apto = input("Captidão do carro: ").strip()
-        resultado = input("Resultado da inspeção: ").strip()
-        return {
-            "placa": placa,
-            "id": id,
-            "apto": apto,
-            "resultado": resultado,
-        }        
+        vin = input("Vin do carro: ").strip()
+        while not self.validar_vin(vin):
+            print("Documento inválido! Por favor, insira uma vin válida.")
+            vin = input("Vin do carro: ").strip()
+        return vin  
     
-    def validar_placa(self, placa):
+    def validar_vin(self, vin):
         for carro in ControladorAssocCarroInspecao.lista_carros:
-            if(carro.placa == placa):
+            if(carro.vin == vin):
                 return True
             return False
-    
-    def request_criar_associacao(self):
-        dados_associacao = self.pegar_dados
-        ControladorAssocCarroInspecao.criar_associacao(dados_associacao["placa"], dados_associacao["id"], dados_associacao["apto"], dados_associacao["resultado"],)
-        return
 
-    #ainda vou fazer o listar e excluir
+    def pegar_id(self, inspecoes):
+       id = input("ID da inspeção: ").strip()
+       return id
+
+    def pegar_dados_carro_classico(self):
+        num_motor = input("Número do Motor: ").strip()
+        while not num_motor:
+            print("Número do Motor inválido! O campo não pode ser vazio.")
+            num_motor = input("Número do Motor: ").strip()
+        
+        num_serie = input("Número de Série: ").strip()
+        while not num_serie:
+            print("Número de Série inválido! O campo não pode ser vazio.")
+            num_serie = input("Número de Série: ").strip()
+
+        codigo_cor = input("Código da Cor: ").strip()
+        while not codigo_cor:
+            print("Código da cor inválido! O campo não pode ser vazio.")
+            codigo_cor = input("Código da Cor: ").strip()
+        
+        return{
+            "num_motor": num_motor,
+            "num_serie": num_serie,
+            "codigo_cor": codigo_cor
+        }
+
+
+    def mostra_inspecao(self, inspecao):
+        print("\n")
+        print("Número de ID: ", inspecao.id)
+        print("Vin do carro: ", inspecao.carro.documento.vin)
+        print("Apto: ", inspecao.apto)
+        print("Resultado: ", inspecao.resultado)
+        print("\n")
+
       
             
 
