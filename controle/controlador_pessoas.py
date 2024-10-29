@@ -97,19 +97,25 @@ class ControladorPessoas():
     pessoa = self.pega_pessoa_por_doc(doc_pessoa)
 
     if pessoa is not None:
-      dados_compra = self.__tela_pessoa.seleciona_carro()
-      doc_carro, valor = dados_compra[0], dados_compra[1]
+        dados_compra = self.__tela_pessoa.seleciona_carro()
+        doc_carro, valor = dados_compra[0], dados_compra[1]
 
-      # Verifica disponibilidade para compra e realiza a transação
-      if self.__controlador_sistema.controlador_carros_classicos.compra_carro(doc_carro, valor):
-        carro = self.__controlador_sistema.controlador_carros_classicos.pega_carro_por_vin(doc_carro)
-        pessoa.del_carro(carro)
-        self.__tela_pessoa.mostra_mensagem("Compra realizada com sucesso!")
-        self.lista_pessoas()
-      else:
-        self.__tela_pessoa.mostra_mensagem("ATENCAO: Carro não encontrado ou já comprado")
+        # Verifica se o carro realmente pertence à pessoa antes de registrar a venda
+        carro = next((c for c in pessoa.carros if c.documentacao.vin == doc_carro), None)
+        
+        if carro is None:
+            self.__tela_pessoa.mostra_mensagem("ATENÇÃO: Este carro não pertence à pessoa selecionada.")
+            return
+
+        # Verifica disponibilidade para compra e realiza a transação
+        if self.__controlador_sistema.controlador_carros_classicos.compra_carro(doc_carro, valor):
+            pessoa.del_carro(carro)
+            self.__tela_pessoa.mostra_mensagem("Compra realizada com sucesso!")
+            self.lista_pessoas()
+        else:
+            self.__tela_pessoa.mostra_mensagem("ATENÇÃO: Carro não encontrado ou já comprado")
     else:
-      self.__tela_pessoa.mostra_mensagem("ATENCAO: Pessoa não encontrada")
+        self.__tela_pessoa.mostra_mensagem("ATENÇÃO: Pessoa não encontrada")
 
   # Remove um carro específico de uma pessoa pelo VIN
   def remove_carro(self, vin: str) -> bool:

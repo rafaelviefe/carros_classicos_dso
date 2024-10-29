@@ -3,12 +3,14 @@ class TelaAssocCarroInspecao:
         opcao = -1  
         while opcao not in [0, 1, 2, 3]:
             try:
+                print("\n")
                 print("-------- INSPEÇÕES ----------")
                 print("Escolha a opcao")
                 print("1 - Incluir inspeção")
                 print("2 - Listar inspeções")
                 print("3 - Excluir inspeção")
                 print("0 - Retornar")
+                print("\n")
 
                 opcao = int(input("Escolha a opcao: "))
                 if opcao not in [0, 1, 2, 3]:

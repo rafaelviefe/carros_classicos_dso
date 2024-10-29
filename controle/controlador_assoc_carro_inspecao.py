@@ -10,6 +10,8 @@ class ControladorAssocCarroInspecao:
     
     # Inclui uma nova inspeção para um carro, verificando a elegibilidade do veículo e calculando o resultado da inspeção.
     def inclui_inspecao(self, vin=None, carro=None):
+        self.__tela_associacao.mostra_mensagem("\nINICIANDO INSPEÇÃO...")
+
         # Valida VIN e obtém o carro, se não fornecido
         if not vin or not carro:
             dados_carro = self.valida_vin()
@@ -97,7 +99,7 @@ class ControladorAssocCarroInspecao:
 
     # Lista todas as inspeções de um veículo específico, buscando pelo VIN.
     def lista_inspecoes(self):
-        vin = self.__tela_associacao.valida_vin()[0]
+        vin = self.valida_vin()[0]
         inspecoes = self.busca_inspecoes_por_vin(vin)
         for inspecao in inspecoes:
             self.__tela_associacao.mostra_inspecao(inspecao)  
@@ -135,4 +137,4 @@ class ControladorAssocCarroInspecao:
         
         continua = True
         while continua:
-            lista_opcoes[self.__tela_peca.tela_opcoes()]()
+            lista_opcoes[self.__tela_associacao.tela_opcoes()]()

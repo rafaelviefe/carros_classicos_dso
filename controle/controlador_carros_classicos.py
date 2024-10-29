@@ -143,7 +143,7 @@ class ControladorCarrosClassicos:
     def vende_carro(self, vin, preco):
         carro = self.pega_carro_por_vin(vin)
 
-        if carro is not None and len(carro.precos_venda) <= len(carro.precos_compra):
+        if carro is not None and len(carro.precos_venda) == len(carro.precos_compra):
             carro.add_preco_venda(preco)
             return True
 
@@ -153,9 +153,9 @@ class ControladorCarrosClassicos:
     def compra_carro(self, vin, preco):
         carro = self.pega_carro_por_vin(vin)
 
-        if carro is not None and len(carro.precos_venda) == len(carro.precos_compra):
-            if self.__controlador_sistema.controlador_inspecao.inclui_inspecao(vin, carro):
-                carro.add_preco_venda(preco)
+        if carro is not None and len(carro.precos_venda) > len(carro.precos_compra):
+            if self.__controlador_sistema.controlador_assoc_carro_inspecao.inclui_inspecao(vin, carro):
+                carro.add_preco_compra(preco)
                 return True
         return False
 
