@@ -137,10 +137,9 @@ class ControladorCarrosClassicos:
         carro = self.pega_carro_por_vin(vin)
 
         if carro is not None and len(carro.precos_venda) == len(carro.precos_compra):
-            if self.__controlador_sistema.controlador_inspecao.fazer_inspecao(carro):
+            if self.__controlador_sistema.controlador_inspecao.inclui_inspecao(vin, carro):
                 carro.add_preco_venda(preco)
                 return True
-
         return False
 
     def verifica_disponibilidade_peca(self, tipo_peca, identificador, carro_atual=""):
