@@ -8,24 +8,28 @@ class ControladorCarrosClassicos:
         self.__tela_carro_classico = TelaCarroClassico()
         self.__controlador_sistema = controlador_sistema
 
+    # Busca um carro na lista de carros pelo número VIN e o retorna.
     def pega_carro_por_vin(self, vin: str):
         for carro in self.__carros:
             if carro.documentacao.vin == vin:
                 return carro
         return None
 
+    # Obtém e valida as peças do carro; verifica a disponibilidade para evitar duplicidade entre carros.
     def obtem_e_verifica_pecas(self, carro_atual=""):
         pecas_carro = self.__tela_carro_classico.pega_pecas_carro()
 
+        # Recupera motor, roda e pintura a partir dos números fornecidos pelo usuário.
         motor = self.__controlador_sistema.controlador_pecas.pega_motor_por_num(pecas_carro["num_motor"])
         roda = self.__controlador_sistema.controlador_pecas.pega_roda_por_num(pecas_carro["num_serie"])
         pintura = self.__controlador_sistema.controlador_pecas.pega_pintura_por_cod(pecas_carro["codigo_cor"])
 
+        # Checa a existência de todas as peças requisitadas.
         if not motor or not roda or not pintura:
             self.__tela_carro_classico.mostra_mensagem("ATENÇÃO: Uma ou mais peças não foram encontradas. Verifique os códigos e tente novamente.")
             return None, None, None
 
-        # Verificação de disponibilidade das peças
+        # Verifica se as peças estão disponíveis (não associadas a outros carros).
         if self.verifica_disponibilidade_peca("motor", motor.num_motor, carro_atual):
             self.__tela_carro_classico.mostra_mensagem("ATENÇÃO: Este motor já está associado a outro carro.")
             return None, None, None
@@ -38,14 +42,17 @@ class ControladorCarrosClassicos:
 
         return motor, roda, pintura
 
+    # Inclui um novo carro na lista após verificar as peças e obter os dados do carro.
     def inclui_carro(self):
         motor, roda, pintura = self.obtem_e_verifica_pecas()
 
         if not motor or not roda or not pintura:
             return
 
+        # Coleta os dados do carro a partir da interface.
         dados_carro = self.__tela_carro_classico.pega_dados_carro()
 
+        # Cria uma nova instância de CarroClassico e a adiciona à lista.
         carro = CarroClassico(
             vin=dados_carro["vin"],
             placa=dados_carro["placa"],
@@ -62,11 +69,13 @@ class ControladorCarrosClassicos:
         self.__carros.append(carro)
         self.lista_carros()
 
+    # Modifica os dados de um carro existente na lista.
     def altera_carro(self):
         self.lista_carros()
         vin_carro = self.__tela_carro_classico.seleciona_carro()
         carro = self.pega_carro_por_vin(vin_carro)
 
+        # Atualiza os atributos do carro se ele for encontrado.
         if carro is not None:
             novos_dados_carro = self.__tela_carro_classico.pega_alteracoes_carro()
             carro.documentacao.placa = novos_dados_carro["placa"]
@@ -76,21 +85,24 @@ class ControladorCarrosClassicos:
         else:
             self.__tela_carro_classico.mostra_mensagem("ATENÇÃO: Carro não encontrado.")
 
+    # Realiza a substituição das peças de um carro após selecioná-lo.
     def troca_peca(self):
         self.lista_carros()
         vin_carro = self.__tela_carro_classico.seleciona_carro()
         carro = self.pega_carro_por_vin(vin_carro)
 
+        # Valida a existência do carro antes de prosseguir com a troca das peças.
         if carro is None:
             self.__tela_carro_classico.mostra_mensagem("ATENÇÃO: Carro não encontrado.")
             return
 
+        # Obtém e verifica as novas peças a serem associadas ao carro.
         motor, roda, pintura = self.obtem_e_verifica_pecas(vin_carro)
 
         if not motor or not roda or not pintura:
             return
 
-        # Substitui as peças do carro
+        # Realiza a troca das peças.
         carro.motor = motor
         carro.roda = roda
         carro.pintura = pintura
@@ -98,6 +110,7 @@ class ControladorCarrosClassicos:
         self.__tela_carro_classico.mostra_mensagem("Peças trocadas com sucesso!")
         self.lista_carros()
 
+    # Exibe todos os carros cadastrados, mostrando VIN, modelo, ano e unidades existentes.
     def lista_carros(self): 
         if not self.__carros:
             self.__tela_carro_classico.mostra_mensagem("A lista de carros está vazia.")
@@ -111,11 +124,13 @@ class ControladorCarrosClassicos:
                 "unidades_existentes": carro.unidades_existentes
             })
 
+    # Exclui um carro da lista e atualiza os dados de cadastro.
     def exclui_carro(self):
         self.lista_carros()
         vin_carro = self.__tela_carro_classico.seleciona_carro()
         carro = self.pega_carro_por_vin(vin_carro)
 
+        # Remove o carro da lista, se encontrado.
         if carro is not None:
             self.__carros.remove(carro)
             self.__controlador_sistema.controlador_pessoas.remove_carro(vin_carro)
@@ -124,6 +139,7 @@ class ControladorCarrosClassicos:
         else:
             self.__tela_carro_classico.mostra_mensagem("ATENÇÃO: Carro não encontrado.")
 
+    # Adiciona um valor de venda ao carro, se ele ainda não foi vendido
     def vende_carro(self, vin, preco):
         carro = self.pega_carro_por_vin(vin)
 
@@ -133,6 +149,7 @@ class ControladorCarrosClassicos:
 
         return False
 
+    # Adiciona um valor de compra ao carro, se ele ainda não foi comprado
     def compra_carro(self, vin, preco):
         carro = self.pega_carro_por_vin(vin)
 
@@ -142,6 +159,7 @@ class ControladorCarrosClassicos:
                 return True
         return False
 
+    # Verifica se a peça já está sendo utilizada
     def verifica_disponibilidade_peca(self, tipo_peca, identificador, carro_atual=""):
         for carro in self.__carros:
             if carro_atual == "" or carro.documentacao.vin != carro_atual:
@@ -152,13 +170,16 @@ class ControladorCarrosClassicos:
                 elif tipo_peca == "pintura" and carro.pintura.codigo_cor == identificador:
                     return True
         return False
-    
-    @property
-    def carros(self) -> list:
-        return self.__carros
 
     def abre_tela(self):
-        lista_opcoes = {1: self.inclui_carro, 2: self.altera_carro, 3: self.lista_carros, 4: self.exclui_carro, 5: self.troca_peca, 0: self.__controlador_sistema.abre_tela}
+        lista_opcoes = {
+            1: self.inclui_carro,
+            2: self.altera_carro,
+            3: self.lista_carros,
+            4: self.exclui_carro,
+            5: self.troca_peca,
+            0: self.__controlador_sistema.abre_tela
+        }
 
         continua = True
         while continua:
