@@ -34,7 +34,6 @@ class ControladorAssocCarroInspecao:
 
     # Compara as peças atuais do carro com as peças esperadas e define o resultado da inspeção.
     def verifica_inspecao(self, carro, cont_inapto):
-        # Obtém peças atuais do carro e peças esperadas para comparação
         pecas_atuais = self.obtem_pecas_carro(carro)
         pecas_esperadas = self.__tela_associacao.pega_pecas_esperadas()
 
@@ -43,7 +42,11 @@ class ControladorAssocCarroInspecao:
         apto, pecas_diferentes = inspecao[0], inspecao[1]
 
         # Define o resultado com base na aptidão e contagem de inspeções reprovadas
-        resultado = "aprovado" if apto else "reprovado" if (cont_inapto + 1) >= 3 else "pendente"
+        if apto:
+            resultado = "aprovado"
+        else:
+            resultado = "reprovado" if (cont_inapto + 1) >= 3 else "pendente"
+        
         self.__tela_associacao.mostra_inconstancias(pecas_diferentes)
         self.__tela_associacao.mostra_mensagem(f'Resultado da inspeção: {resultado.upper()}.')
 
@@ -52,36 +55,30 @@ class ControladorAssocCarroInspecao:
     # Extrai as informações das peças do carro para inspeção.
     def obtem_pecas_carro(self, carro):
         return {
-            "num_motor": carro.motor.num_motor,
-            "num_serie": carro.roda.num_serie,
-            "codigo_cor": carro.pintura.codigo_cor
+            "motor": carro.motor.num_motor,
+            "roda": carro.roda.num_serie,
+            "pintura": carro.pintura.codigo_cor
         }
     
     # Retorna uma lista de inspeções associadas ao VIN fornecido.
     def busca_inspecoes_por_vin(self, vin):
-        inspecoes_encontradas = []
-        for associacao in self.__associacoes:
-            if associacao.carro.documento.vin == vin:
-                inspecoes_encontradas.append(associacao)
-        return inspecoes_encontradas
-        
-    # Verifica o status de elegibilidade de inspeções anteriores de um veículo, permitindo ou não uma nova inspeção.
+        return [assoc for assoc in self.__associacoes if assoc.carro.documentacao.vin == vin]
+ 
+     # Verifica o status de elegibilidade de inspeções anteriores de um veículo, permitindo ou não uma nova inspeção.
     def obtem_status_inspecao(self, vin):
         cont_inapto = 0
-        # Obtém as últimas 3 inspeções
-        inspecoes_encontradas = self.busca_inspecoes_por_vin(vin)[:-3]
+        inspecoes_encontradas = self.busca_inspecoes_por_vin(vin)[-3:]
 
         for assoc in inspecoes_encontradas:
             if not assoc.inspecao.apto:
                 cont_inapto += 1
             else:
                 cont_inapto = 0
-                
-            # Verifica condição de reprovação ou inaptidão contínua
-            if (assoc.inspecao.resultado == "reprovado") or (cont_inapto >= 3):
-                return [False, cont_inapto]
 
-        return [True, cont_inapto]
+            if cont_inapto >= 3:
+                return False, cont_inapto
+
+        return True, cont_inapto
 
     # Compara as peças atuais do carro com as peças esperadas e registra discrepâncias.
     def compara_pecas(self, pecas_atuais: dict, pecas_esperadas: dict):
@@ -91,12 +88,12 @@ class ControladorAssocCarroInspecao:
 
         # Identifica peças que diferem das expectativas e marca inspeção como inconforme
         for peca in pecas:
-            if not (pecas_atuais[peca] == pecas_esperadas[peca]):
-                pecas_diferentes = {peca: (pecas_atuais[peca], pecas_esperadas[peca])} 
+            if pecas_atuais[peca] != pecas_esperadas[peca]:
+                pecas_diferentes[peca] = (pecas_atuais[peca], pecas_esperadas[peca])
                 condizente = False 
 
         return [condizente, pecas_diferentes]
-
+    
     # Lista todas as inspeções de um veículo específico, buscando pelo VIN.
     def lista_inspecoes(self):
         vin = self.valida_vin()[0]

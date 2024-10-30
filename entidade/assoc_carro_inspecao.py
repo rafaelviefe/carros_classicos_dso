@@ -8,7 +8,7 @@ class AssocCarroInspecao:
         if not isinstance(carro, CarroClassico):
             raise TypeError("O carro deve ser uma instância de CarroClassico")
         self.__id = id
-        self.__inspecao = self.Inspecao(id, apto, resultado)
+        self.__inspecao = Inspecao(id, apto, resultado)
         self.__carro = carro
 
     @property
