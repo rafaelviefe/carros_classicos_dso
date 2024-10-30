@@ -1,36 +1,47 @@
 from entidade.assoc_carro_inspecao import AssocCarroInspecao
 from limite.tela_assoc_carro_inpecao import TelaAssocCarroInspecao
 
+from exception.inclusao_exception import InclusaoException
+from exception.exclusao_exception import ExclusaoException
+from exception.listagem_exception import ListagemException
+
 class ControladorAssocCarroInspecao:
     def __init__(self, controlador_sistema):
         self.__associacoes = []
         self.__tela_associacao = TelaAssocCarroInspecao()
         self.__controlador_sistema = controlador_sistema
         self.__id_inspecao = 0
-    
+
     # Inclui uma nova inspeção para um carro, verificando a elegibilidade do veículo e calculando o resultado da inspeção.
     def inclui_inspecao(self, vin=None, carro=None):
         self.__tela_associacao.mostra_mensagem("\nINICIANDO INSPEÇÃO...")
 
-        # Valida VIN e obtém o carro, se não fornecido
-        if not vin or not carro:
-            dados_carro = self.valida_vin()
-            vin, carro = dados_carro[0], dados_carro[1]
-
-        # Verifica se o carro pode ser inspecionado com base em inspeções anteriores
-        inspecoes_anteriores = self.obtem_status_inspecao(vin)
-        avaliavel, cont_inapto = inspecoes_anteriores[0], inspecoes_anteriores[1]
-        if not avaliavel:
-            self.__tela_associacao.mostra_mensagem("ATENCAO: Este carro foi reprovado e não pode mais ser inspecionado!")
-            return False
+        try:    
+            # Valida VIN e obtém o carro, se não fornecido
+            if not vin or not carro:
+                dados_carro = self.valida_vin()
+                vin, carro = dados_carro[0], dados_carro[1]
         
-        # Verifica se o carro passa na inspeção e cria a associação
-        apto, resultado = self.verifica_inspecao(carro, cont_inapto)
-        id = self.gera_id()
-        inspecao = AssocCarroInspecao(carro, id, apto, resultado)
-        self.__associacoes.append(inspecao)
+            # Verifica se o carro pode ser inspecionado com base em inspeções anteriores
+            avaliavel, cont_inapto = self.obtem_status_inspecao(vin)
+            if not avaliavel:
+                raise InclusaoException("ATENÇÃO: Este carro foi reprovado e não pode mais ser inspecionado!")
+            
+            # Verifica se o carro passa na inspeção e cria a associação
+            apto, resultado = self.verifica_inspecao(carro, cont_inapto)
+            id = self.gera_id()
+            
+            try:
+                inspecao = AssocCarroInspecao(carro, id, apto, resultado)
+                self.__associacoes.append(inspecao)
+                return apto
+            except (TypeError, ValueError) as e:
+                self.__tela_associacao.mostra_mensagem(f"Erro ao criar inspeção: {str(e)}")
+                return False
 
-        return apto
+        except InclusaoException as e:
+            self.__tela_associacao.mostra_mensagem(str(e))
+            return False
 
     # Compara as peças atuais do carro com as peças esperadas e define o resultado da inspeção.
     def verifica_inspecao(self, carro, cont_inapto):
@@ -97,19 +108,40 @@ class ControladorAssocCarroInspecao:
     # Lista todas as inspeções de um veículo específico, buscando pelo VIN.
     def lista_inspecoes(self):
         vin = self.valida_vin()[0]
-        inspecoes = self.busca_inspecoes_por_vin(vin)
-        for inspecao in inspecoes:
-            self.__tela_associacao.mostra_inspecao(inspecao)  
-        return inspecoes
+        try:
+            
+            inspecoes = self.busca_inspecoes_por_vin(vin)
+            if not inspecoes:
+                raise ListagemException(f"Nenhuma inspeção encontrada para o VIN {vin}.")
+            
+            for inspecao in inspecoes:
+                self.__tela_associacao.mostra_inspecao(inspecao)  
+            return inspecoes
+        
+        except ListagemException as e:
+            self.__tela_associacao.mostra_mensagem(str(e))
 
     # Exclui uma inspeção específica após listar e selecionar pelo ID.
     def exclui_inspecao(self):
-        inspecoes = self.lista_inspecoes()
-        id_selecionado = self.__tela_associacao.pega_id()
+        try:
+            inspecoes = self.lista_inspecoes()
+            if not inspecoes:
+                return
 
-        for inspecao in inspecoes:
-            if inspecao.id == id_selecionado:
-                self.__associacoes.remove(inspecao)    
+            id_selecionado = self.__tela_associacao.pega_id()
+            for inspecao in inspecoes:
+                if inspecao.id == id_selecionado:
+                    self.__associacoes.remove(inspecao)
+                    self.__tela_associacao.mostra_mensagem("Inspeção excluída com sucesso!")
+                    return
+
+            raise ExclusaoException("Inspeção com o ID fornecido não encontrada.")
+        
+        except ListagemException as e:
+            self.__tela_associacao.mostra_mensagem(str(e))
+        
+        except ExclusaoException as e:
+            self.__tela_associacao.mostra_mensagem(str(e))
 
     # Valida a existência de um carro associado ao VIN fornecido.
     def valida_vin(self):
