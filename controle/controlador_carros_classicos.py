@@ -1,5 +1,8 @@
 from limite.tela_carro_classico import TelaCarroClassico
 from entidade.carro_classico import CarroClassico
+from exception.inclusao_exception import InclusaoException
+from exception.exclusao_exception import ExclusaoException
+from exception.listagem_exception import ListagemException
 
 class ControladorCarrosClassicos:
 
@@ -15,59 +18,60 @@ class ControladorCarrosClassicos:
                 return carro
         return None
 
-    # Obtém e valida as peças do carro; verifica a disponibilidade para evitar duplicidade entre carros.
+    # Obtém e valida as peças do carro; lança exceção em caso de erro
     def obtem_e_verifica_pecas(self, carro_atual=""):
         pecas_carro = self.__tela_carro_classico.pega_pecas_carro()
 
-        # Recupera motor, roda e pintura a partir dos números fornecidos pelo usuário.
         motor = self.__controlador_sistema.controlador_pecas.pega_motor_por_num(pecas_carro["num_motor"])
         roda = self.__controlador_sistema.controlador_pecas.pega_roda_por_num(pecas_carro["num_serie"])
         pintura = self.__controlador_sistema.controlador_pecas.pega_pintura_por_cod(pecas_carro["codigo_cor"])
 
-        # Checa a existência de todas as peças requisitadas.
-        if not motor or not roda or not pintura:
-            self.__tela_carro_classico.mostra_mensagem("ATENÇÃO: Uma ou mais peças não foram encontradas. Verifique os códigos e tente novamente.")
-            return None, None, None
+        # Lança exceção se uma peça não for encontrada
+        if not motor:
+            raise InclusaoException("Motor não encontrado. Verifique o número informado.")
+        if not roda:
+            raise InclusaoException("Roda não encontrada. Verifique o número de série informado.")
+        if not pintura:
+            raise InclusaoException("Pintura não encontrada. Verifique o código de cor informado.")
 
-        # Verifica se as peças estão disponíveis (não associadas a outros carros).
+        # Verifica se as peças estão disponíveis (não associadas a outros carros)
         if self.verifica_disponibilidade_peca("motor", motor.num_motor, carro_atual):
-            self.__tela_carro_classico.mostra_mensagem("ATENÇÃO: Este motor já está associado a outro carro.")
-            return None, None, None
+            raise InclusaoException("Este motor já está associado a outro carro.")
         if self.verifica_disponibilidade_peca("roda", roda.num_serie, carro_atual):
-            self.__tela_carro_classico.mostra_mensagem("ATENÇÃO: Esta roda já está associada a outro carro.")
-            return None, None, None
+            raise InclusaoException("Esta roda já está associada a outro carro.")
         if self.verifica_disponibilidade_peca("pintura", pintura.codigo_cor, carro_atual):
-            self.__tela_carro_classico.mostra_mensagem("ATENÇÃO: Esta pintura já está associada a outro carro.")
-            return None, None, None
+            raise InclusaoException("Esta pintura já está associada a outro carro.")
 
         return motor, roda, pintura
 
     # Inclui um novo carro na lista após verificar as peças e obter os dados do carro.
     def inclui_carro(self):
-        motor, roda, pintura = self.obtem_e_verifica_pecas()
-
-        if not motor or not roda or not pintura:
-            return
-
-        # Coleta os dados do carro a partir da interface.
-        dados_carro = self.__tela_carro_classico.pega_dados_carro()
-
-        # Cria uma nova instância de CarroClassico e a adiciona à lista.
-        carro = CarroClassico(
-            vin=dados_carro["vin"],
-            placa=dados_carro["placa"],
-            modelo=dados_carro["modelo"],
-            ano=dados_carro["ano"],
-            quilometragem=dados_carro["quilometragem"],
-            motor=motor,
-            roda=roda,
-            pintura=pintura,
-            cambio=dados_carro["cambio"],
-            unidades_existentes=dados_carro["unidades_existentes"]
-        )
-
-        self.__carros.append(carro)
-        self.lista_carros()
+        try:
+            # Tenta criar o carro com as peças validadas
+            motor, roda, pintura = self.obtem_e_verifica_pecas()
+            dados_carro = self.__tela_carro_classico.pega_dados_carro()
+            
+            carro = CarroClassico(
+                vin=dados_carro["vin"],
+                placa=dados_carro["placa"],
+                modelo=dados_carro["modelo"],
+                ano=dados_carro["ano"],
+                quilometragem=dados_carro["quilometragem"],
+                motor=motor,
+                roda=roda,
+                pintura=pintura,
+                cambio=dados_carro["cambio"],
+                unidades_existentes=dados_carro["unidades_existentes"]
+            )
+            
+            self.__carros.append(carro)
+            self.lista_carros()
+        
+        except InclusaoException as e:
+            self.__tela_carro_classico.mostra_mensagem(f"ATENÇÃO: {e}")
+        
+        except TypeError as e:
+            raise InclusaoException(f"Erro ao criar o carro: {e}")
 
     # Modifica os dados de um carro existente na lista.
     def altera_carro(self):
@@ -112,32 +116,38 @@ class ControladorCarrosClassicos:
 
     # Exibe todos os carros cadastrados, mostrando VIN, modelo, ano e unidades existentes.
     def lista_carros(self): 
-        if not self.__carros:
-            self.__tela_carro_classico.mostra_mensagem("A lista de carros está vazia.")
-            return
+        try:
+            if not self.__carros:
+                raise ListagemException("A lista de carros está vazia.")
+            
+            for carro in self.__carros:
+                self.__tela_carro_classico.mostra_carro({
+                    "vin": carro.documentacao.vin,
+                    "modelo": carro.documentacao.modelo,
+                    "ano": carro.documentacao.ano,
+                    "unidades_existentes": carro.unidades_existentes
+                })
         
-        for carro in self.__carros:
-            self.__tela_carro_classico.mostra_carro({
-                "vin": carro.documentacao.vin,
-                "modelo": carro.documentacao.modelo,
-                "ano": carro.documentacao.ano,
-                "unidades_existentes": carro.unidades_existentes
-            })
+        except ListagemException as e:
+            self.__tela_carro_classico.mostra_mensagem(str(e))
 
     # Exclui um carro da lista e atualiza os dados de cadastro.
     def exclui_carro(self):
-        self.lista_carros()
-        vin_carro = self.__tela_carro_classico.seleciona_carro()
-        carro = self.pega_carro_por_vin(vin_carro)
-
-        # Remove o carro da lista, se encontrado.
-        if carro is not None:
-            self.__carros.remove(carro)
-            self.__controlador_sistema.controlador_pessoas.remove_carro(vin_carro)
-            self.__tela_carro_classico.mostra_mensagem("Carro removido com sucesso!")
+        try:
             self.lista_carros()
-        else:
-            self.__tela_carro_classico.mostra_mensagem("ATENÇÃO: Carro não encontrado.")
+            vin_carro = self.__tela_carro_classico.seleciona_carro()
+            carro = self.pega_carro_por_vin(vin_carro)
+
+            if carro is not None:
+                self.__carros.remove(carro)
+                self.__controlador_sistema.controlador_pessoas.remove_carro(vin_carro)
+                self.__tela_carro_classico.mostra_mensagem("Carro removido com sucesso!")
+                self.lista_carros()
+            else:
+                raise ExclusaoException("ATENÇÃO: Carro não encontrado.")
+            
+        except ExclusaoException as e:
+            self.__tela_carro_classico.mostra_mensagem(str(e))
 
     # Adiciona um valor de venda ao carro, se ele ainda não foi vendido
     def vende_carro(self, vin, preco):
