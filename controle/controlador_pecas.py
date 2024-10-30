@@ -2,6 +2,9 @@ from entidade.motor import Motor
 from entidade.roda import Roda
 from entidade.pintura import Pintura
 from limite.tela_peca import TelaPeca
+from exception.inclusao_exception import InclusaoException
+from exception.exclusao_exception import ExclusaoException
+from exception.listagem_exception import ListagemException
 
 class ControladorPecas:
     def __init__(self, controlador_sistema):
@@ -37,41 +40,45 @@ class ControladorPecas:
     # Adiciona uma peça ao sistema, garantindo que não exista duplicidade
     def inclui_peca(self):
         tipo_peca = self.__tela_peca.seleciona_tipo()
-        if tipo_peca == "motor":
-            dados_motor = self.__tela_peca.pega_dados_motor()
-            if self.pega_motor_por_num(dados_motor["num_motor"]):
-                self.__tela_peca.mostra_mensagem("Motor já cadastrado.")
-                return
-            motor = Motor(**dados_motor)
-            self.__pecas["motor"].append(motor)
-            self.__tela_peca.mostra_mensagem("Motor incluído com sucesso!")
+        try:
+            try:
+                if tipo_peca == "motor":
+                    dados_motor = self.__tela_peca.pega_dados_motor()
+                    if self.pega_motor_por_num(dados_motor["num_motor"]):
+                        raise InclusaoException("Motor já cadastrado.")
+                    motor = Motor(**dados_motor)
+                    self.__pecas["motor"].append(motor)
+                    self.__tela_peca.mostra_mensagem("Motor incluído com sucesso!")
 
-        elif tipo_peca == "roda":
-            dados_roda = self.__tela_peca.pega_dados_roda()
-            if self.pega_roda_por_num(dados_roda["num_serie"]):
-                self.__tela_peca.mostra_mensagem("Roda já cadastrada.")
-                return
-            roda = Roda(**dados_roda)
-            self.__pecas["roda"].append(roda)
-            self.__tela_peca.mostra_mensagem("Roda incluída com sucesso!")
+                elif tipo_peca == "roda":
+                    dados_roda = self.__tela_peca.pega_dados_roda()
+                    if self.pega_roda_por_num(dados_roda["num_serie"]):
+                        raise InclusaoException("Roda já cadastrada.")
+                    roda = Roda(**dados_roda)
+                    self.__pecas["roda"].append(roda)
+                    self.__tela_peca.mostra_mensagem("Roda incluída com sucesso!")
 
-        elif tipo_peca == "pintura":
-            dados_pintura = self.__tela_peca.pega_dados_pintura()
-            if self.pega_pintura_por_cod(dados_pintura["codigo_cor"]):
-                self.__tela_peca.mostra_mensagem("Pintura já cadastrada.")
-                return
-            pintura = Pintura(**dados_pintura)
-            self.__pecas["pintura"].append(pintura)
-            self.__tela_peca.mostra_mensagem("Pintura incluída com sucesso!")
+                elif tipo_peca == "pintura":
+                    dados_pintura = self.__tela_peca.pega_dados_pintura()
+                    if self.pega_pintura_por_cod(dados_pintura["codigo_cor"]):
+                        raise InclusaoException("Pintura já cadastrada.")
+                    pintura = Pintura(**dados_pintura)
+                    self.__pecas["pintura"].append(pintura)
+                    self.__tela_peca.mostra_mensagem("Pintura incluída com sucesso!")
+
+            except TypeError as e:
+                raise InclusaoException(f"Erro ao incluir peça: {str(e)}") from e
+
+        except InclusaoException as e:
+            self.__tela_peca.mostra_mensagem(str(e))
 
     # Lista todas as peças de um tipo específico, exibindo as informações detalhadas de cada peça
     def lista_pecas(self):
         tipo_peca = self.__tela_peca.seleciona_tipo()
-
-        if tipo_peca == "motor":
-            if not self.__pecas["motor"]:
-                self.__tela_peca.mostra_mensagem("Nenhum motor cadastrado.")
-            else:
+        try:
+            if tipo_peca == "motor":
+                if not self.__pecas["motor"]:
+                    raise ListagemException("Nenhum motor cadastrado.")
                 for motor in self.__pecas["motor"]:
                     self.__tela_peca.mostra_motor({
                         "num_motor": motor.num_motor, "potencia": motor.potencia,
@@ -79,10 +86,9 @@ class ControladorPecas:
                         "num_cilindros": motor.num_cilindros, "torque": motor.torque
                     })
 
-        elif tipo_peca == "roda":
-            if not self.__pecas["roda"]:
-                self.__tela_peca.mostra_mensagem("Nenhuma roda cadastrada.")
-            else:
+            elif tipo_peca == "roda":
+                if not self.__pecas["roda"]:
+                    raise ListagemException("Nenhuma roda cadastrada.")
                 for roda in self.__pecas["roda"]:
                     self.__tela_peca.mostra_roda({
                         "num_serie": roda.num_serie, "largura": roda.largura,
@@ -90,52 +96,51 @@ class ControladorPecas:
                         "indice_carga": roda.indice_carga, "indice_velocidade": roda.indice_velocidade
                     })
 
-        elif tipo_peca == "pintura":
-            if not self.__pecas["pintura"]:
-                self.__tela_peca.mostra_mensagem("Nenhuma pintura cadastrada.")
-            else:
+            elif tipo_peca == "pintura":
+                if not self.__pecas["pintura"]:
+                    raise ListagemException("Nenhuma pintura cadastrada.")
                 for pintura in self.__pecas["pintura"]:
                     self.__tela_peca.mostra_pintura({
                         "codigo_cor": pintura.codigo_cor, "cor": pintura.cor,
                         "tipo": pintura.tipo, "camadas": pintura.camadas
                     })
+                    
+        except ListagemException as e:
+            self.__tela_peca.mostra_mensagem(str(e))
 
     # Exclui uma peça, verificando primeiro se ela não está em uso por algum carro
     def exclui_peca(self):
         tipo_peca, identificador = self.__tela_peca.seleciona_peca()
-
-        if tipo_peca == "motor":
-            motor = self.pega_motor_por_num(identificador)
-            if motor and self.__controlador_sistema.controlador_carros_classicos.verifica_disponibilidade_peca(tipo_peca, identificador):
-                self.__tela_peca.mostra_mensagem("Motor está em uso em um carro. Não pode ser excluído.")
-                return
-            if motor:
+        try:
+            if tipo_peca == "motor":
+                motor = self.pega_motor_por_num(identificador)
+                if motor and self.__controlador_sistema.controlador_carros_classicos.verifica_disponibilidade_peca(tipo_peca, identificador):
+                    raise ExclusaoException("Motor está em uso em um carro. Não pode ser excluído.")
+                if not motor:
+                    raise ExclusaoException("Motor não encontrado.")
                 self.__pecas["motor"].remove(motor)
                 self.__tela_peca.mostra_mensagem("Motor excluído com sucesso!")
-                return
-            self.__tela_peca.mostra_mensagem("Motor não encontrado.")
 
-        elif tipo_peca == "roda":
-            roda = self.pega_roda_por_num(identificador)
-            if roda and self.__controlador_sistema.controlador_carros_classicos.verifica_disponibilidade_peca(tipo_peca, identificador):
-                self.__tela_peca.mostra_mensagem("Roda está em uso em um carro. Não pode ser excluída.")
-                return
-            if roda:
+            elif tipo_peca == "roda":
+                roda = self.pega_roda_por_num(identificador)
+                if roda and self.__controlador_sistema.controlador_carros_classicos.verifica_disponibilidade_peca(tipo_peca, identificador):
+                    raise ExclusaoException("Roda está em uso em um carro. Não pode ser excluída.")
+                if not roda:
+                    raise ExclusaoException("Roda não encontrada.")
                 self.__pecas["roda"].remove(roda)
                 self.__tela_peca.mostra_mensagem("Roda excluída com sucesso!")
-                return
-            self.__tela_peca.mostra_mensagem("Roda não encontrada.")
 
-        elif tipo_peca == "pintura":
-            pintura = self.pega_pintura_por_cod(identificador)
-            if pintura and self.__controlador_sistema.controlador_carros_classicos.verifica_disponibilidade_peca(tipo_peca, identificador):
-                self.__tela_peca.mostra_mensagem("Pintura está em uso em um carro. Não pode ser excluída.")
-                return
-            if pintura:
+            elif tipo_peca == "pintura":
+                pintura = self.pega_pintura_por_cod(identificador)
+                if pintura and self.__controlador_sistema.controlador_carros_classicos.verifica_disponibilidade_peca(tipo_peca, identificador):
+                    raise ExclusaoException("Pintura está em uso em um carro. Não pode ser excluída.")
+                if not pintura:
+                    raise ExclusaoException("Pintura não encontrada.")
                 self.__pecas["pintura"].remove(pintura)
                 self.__tela_peca.mostra_mensagem("Pintura excluída com sucesso!")
-                return
-            self.__tela_peca.mostra_mensagem("Pintura não encontrada.")
+
+        except ExclusaoException as e:
+            self.__tela_peca.mostra_mensagem(str(e))
 
     def abre_tela(self):
         lista_opcoes = {
