@@ -3,14 +3,14 @@ class TelaAssocCarroInspecao:
         opcao = -1  
         while opcao not in [0, 1, 2, 3]:
             try:
-                print("\n")
+                print()
                 print("-------- INSPEÇÕES ----------")
                 print("Escolha a opcao")
                 print("1 - Incluir inspeção")
                 print("2 - Listar inspeções")
                 print("3 - Excluir inspeção")
                 print("0 - Retornar")
-                print("\n")
+                print()
 
                 opcao = int(input("Escolha a opcao: "))
                 if opcao not in [0, 1, 2, 3]:
@@ -34,6 +34,7 @@ class TelaAssocCarroInspecao:
             id_inspecao = input("Digite o ID da inspeção que deseja selecionar: ").strip()
         return id_inspecao
 
+
     def pega_pecas_esperadas(self):
         num_motor = input("Número do Motor: ").strip()
         while not num_motor:
@@ -51,20 +52,20 @@ class TelaAssocCarroInspecao:
             codigo_cor = input("Código da Cor: ").strip()
         
         return {
-            "num_motor": num_motor,
-            "num_serie": num_serie,
-            "codigo_cor": codigo_cor
+            "motor": num_motor,
+            "roda": num_serie,
+            "pintura": codigo_cor
         }
 
     def mostra_inspecao(self, assoc):
-        print("\n")
-        print("Número de ID: ", assoc.id)
-        print("Vin do carro: ", assoc.carro.documento.vin)
-        print("Apto: ", assoc.inspecao.apto)
-        print("Resultado: ", assoc.inspecao.resultado)
-        print("\n")
+        print()
+        print("Número de ID:", assoc.id)
+        print("Apto:", "Sim" if assoc.inspecao.apto else "Não")
+        print("Resultado:", assoc.inspecao.resultado.capitalize())
+        print()
 
     def mostra_inconstancias(self, pecas_diferentes):
+        print()
         if pecas_diferentes:
             print("Peças diferentes encontradas:")
             for peca, valores in pecas_diferentes.items():

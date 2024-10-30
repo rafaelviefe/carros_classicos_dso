@@ -3,14 +3,14 @@ class TelaPeca:
         opcao = -1  
         while opcao not in [0, 1, 2, 3]:
             try:
-                print("\n")
+                print()
                 print("-------- PEÇAS ----------")
                 print("Escolha a opção")
                 print("1 - Incluir Peça")
                 print("2 - Listar Peças")
                 print("3 - Excluir Peça")
                 print("0 - Retornar")
-                print("\n")
+                print()
 
                 opcao = int(input("Escolha a opção: "))
                 if opcao not in [0, 1, 2, 3]:
@@ -162,41 +162,41 @@ class TelaPeca:
         }
     
     def mostra_motor(self, dados_motor):
-        print("\n")
-        print("Número do Motor: ", dados_motor["num_motor"])
-        print("Potência: ", dados_motor["potencia"])
-        print("Cilindrada: ", dados_motor["cilindrada"])
-        print("Tipo de Combustível: ", dados_motor["tipo_combustivel"])
-        print("Número de Cilindros: ", dados_motor["num_cilindros"])
-        print("Torque: ", dados_motor["torque"])
-        print("\n")
+        print()
+        print("Número do Motor:", dados_motor["num_motor"])
+        print("Potência:", dados_motor["potencia"])
+        print("Cilindrada:", dados_motor["cilindrada"])
+        print("Tipo de Combustível:", dados_motor["tipo_combustivel"])
+        print("Número de Cilindros:", dados_motor["num_cilindros"])
+        print("Torque:", dados_motor["torque"])
+        print()
 
     def mostra_roda(self, dados_roda):
-        print("\n")
-        print("Número de Série: ", dados_roda["num_serie"])
-        print("Largura: ", dados_roda["largura"])
-        print("Perfil: ", dados_roda["perfil"])
-        print("Tipo: ", dados_roda["tipo"])
-        print("Diâmetro do Aro: ", dados_roda["diametro_aro"])
+        print()
+        print("Número de Série:", dados_roda["num_serie"])
+        print("Largura:", dados_roda["largura"])
+        print("Perfil:", dados_roda["perfil"])
+        print("Tipo:", dados_roda["tipo"])
+        print("Diâmetro do Aro:", dados_roda["diametro_aro"])
         print("Índice de Carga: ", dados_roda["indice_carga"])
-        print("Índice de Velocidade: ", dados_roda["indice_velocidade"])
-        print("\n")
+        print("Índice de Velocidade:", dados_roda["indice_velocidade"])
+        print()
 
     def mostra_pintura(self, dados_pintura):
-        print("\n")
-        print("Código da Cor: ", dados_pintura["codigo_cor"])
-        print("Cor: ", dados_pintura["cor"])
-        print("Tipo de Pintura: ", dados_pintura["tipo"])
-        print("Número de Camadas: ", dados_pintura["camadas"])
-        print("\n")
+        print()
+        print("Código da Cor:", dados_pintura["codigo_cor"])
+        print("Cor:", dados_pintura["cor"])
+        print("Tipo de Pintura:", dados_pintura["tipo"])
+        print("Número de Camadas:", dados_pintura["camadas"])
+        print()
 
     def seleciona_tipo(self):
-        print("\n")
+        print()
         print("Selecione o tipo de peça:")
         print("1 - Motor")
         print("2 - Roda")
         print("3 - Pintura")
-        print("\n")
+        print()
 
         tipo_peca = -1
         while tipo_peca not in [1, 2, 3]:

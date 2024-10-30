@@ -3,7 +3,7 @@ class TelaSistema:
         opcao = -1
         while opcao not in [0, 1, 2, 3, 4]:
             try:
-                print("\n")
+                print()
                 print("-------- Concessionária Clássica ---------")
                 print("Escolha sua opcao")
                 print("1 - Clientes")
@@ -11,7 +11,7 @@ class TelaSistema:
                 print("3 - Inspeções")
                 print("4 - Peças")
                 print("0 - Finalizar sistema")
-                print("\n")
+                print()
                 
                 opcao = int(input("Escolha a opcao: "))
                 if opcao not in [0, 1, 2, 3, 4]:

@@ -3,7 +3,7 @@ class TelaCarroClassico:
         opcao = -1  
         while opcao not in [0, 1, 2, 3, 4, 5]:
             try:
-                print("\n")
+                print()
                 print("-------- CARROS CLÁSSICOS ----------")
                 print("Escolha a opcao")
                 print("1 - Incluir Carro")
@@ -12,7 +12,7 @@ class TelaCarroClassico:
                 print("4 - Excluir Carro")
                 print("5 - Trocar Peças")
                 print("0 - Retornar")
-                print("\n")
+                print()
 
                 opcao = int(input("Escolha a opcao: "))
                 if opcao not in [0, 1, 2, 3, 4, 5]:
@@ -124,12 +124,12 @@ class TelaCarroClassico:
         return vin
 
     def mostra_carro(self, dados_carro):
-        print("\n")
-        print("VIN: ", dados_carro["vin"])
-        print("Modelo: ", dados_carro["modelo"])
-        print("Ano: ", dados_carro["ano"])
-        print("Unidades Existentes: ", dados_carro["unidades_existentes"])
-        print("\n")
+        print()
+        print("VIN:", dados_carro["vin"])
+        print("Modelo:", dados_carro["modelo"])
+        print("Ano:", dados_carro["ano"])
+        print("Unidades Existentes:", dados_carro["unidades_existentes"])
+        print()
 
     def mostra_mensagem(self, msg):
         print(msg)
