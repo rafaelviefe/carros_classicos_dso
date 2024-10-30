@@ -28,10 +28,13 @@ class TelaAssocCarroInspecao:
         return vin  
     
     def pega_id(self):
-        id_inspecao = input("Digite o ID da inspeção que deseja selecionar: ").strip()
-        while not id_inspecao:
-            print("ID inválida! O campo não pode ser vazio.")
-            id_inspecao = input("Digite o ID da inspeção que deseja selecionar: ").strip()
+        id_valido = False
+        while not id_valido:
+            try:
+                id_inspecao = int(input("Digite o ID da inspeção que deseja selecionar: ").strip())
+                id_valido = True
+            except ValueError:
+                print("ID inválida! Por favor, insira um número inteiro.")
         return id_inspecao
 
 
