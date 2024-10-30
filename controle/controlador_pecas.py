@@ -2,6 +2,7 @@ from entidade.motor import Motor
 from entidade.roda import Roda
 from entidade.pintura import Pintura
 from limite.tela_peca import TelaPeca
+
 from exception.inclusao_exception import InclusaoException
 from exception.exclusao_exception import ExclusaoException
 from exception.listagem_exception import ListagemException

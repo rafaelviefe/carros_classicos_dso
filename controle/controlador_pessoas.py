@@ -2,6 +2,10 @@ from limite.tela_pessoa import TelaPessoa
 from entidade.pessoa_juridica import PessoaJuridica
 from entidade.negociante import Negociante
 
+from exception.inclusao_exception import InclusaoException
+from exception.exclusao_exception import ExclusaoException
+from exception.listagem_exception import ListagemException
+
 class ControladorPessoas():
 
   def __init__(self, controlador_sistema):
@@ -18,21 +22,22 @@ class ControladorPessoas():
 
   # Inclui uma nova pessoa (Negociante ou Pessoa Jurídica) após validar a unicidade do documento
   def inclui_pessoa(self):
-    dados_pessoa = self.__tela_pessoa.pega_dados_pessoa()
-        
-    # Verifica se já existe uma pessoa registrada com o documento fornecido
-    if any(pessoa.documento == dados_pessoa["documento"] for pessoa in self.__pessoas):
-      self.__tela_pessoa.mostra_mensagem("ATENÇÃO: Uma pessoa com este documento já foi registrada.")
-      return
-    
-    # Cria a pessoa como Negociante ou Pessoa Jurídica com base no comprimento do documento
-    if len(dados_pessoa["documento"]) == 11:
-      pessoa = Negociante(dados_pessoa["nome"], dados_pessoa["documento"])
-    else:
-      pessoa = PessoaJuridica(dados_pessoa["nome"], dados_pessoa["documento"])
+      try:
+          dados_pessoa = self.__tela_pessoa.pega_dados_pessoa()
 
-    self.__pessoas.append(pessoa)
-    self.lista_pessoas()
+          if any(pessoa.documento == dados_pessoa["documento"] for pessoa in self.__pessoas):
+              raise InclusaoException("Uma pessoa com este documento já foi registrada.")
+          
+          if len(dados_pessoa["documento"]) == 11:
+              pessoa = Negociante(dados_pessoa["nome"], dados_pessoa["documento"])
+          else:
+              pessoa = PessoaJuridica(dados_pessoa["nome"], dados_pessoa["documento"])
+
+          self.__pessoas.append(pessoa)
+          self.lista_pessoas()
+
+      except InclusaoException as e:
+          self.__tela_pessoa.mostra_mensagem(f"ATENÇÃO: {str(e)}")
 
   # Permite alterar o nome de uma pessoa após selecioná-la pelo documento
   def altera_pessoa(self):
@@ -49,25 +54,32 @@ class ControladorPessoas():
 
   # Exibe uma lista de todas as pessoas registradas
   def lista_pessoas(self):
-    if not self.__pessoas:
-      self.__tela_pessoa.mostra_mensagem("A lista de pessoas está vazia.")
-      return
-    
-    # Mostra os detalhes de cada pessoa
-    for pessoa in self.__pessoas:
-      self.__tela_pessoa.mostra_pessoa({"nome": pessoa.nome, "documento": pessoa.documento, "carros": pessoa.carros})
+      try:
+          if not self.__pessoas:
+              raise ListagemException("A lista de pessoas está vazia.")
+
+          # Exibe os detalhes das pessoas
+          for pessoa in self.__pessoas:
+              self.__tela_pessoa.mostra_pessoa({"nome": pessoa.nome, "documento": pessoa.documento, "carros": pessoa.carros})
+
+      except ListagemException as e:
+          self.__tela_pessoa.mostra_mensagem(f"ATENÇÃO: {str(e)}")
 
   # Remove uma pessoa da lista após selecioná-la pelo documento
   def exclui_pessoa(self):
-    self.lista_pessoas()
-    doc_pessoa = self.__tela_pessoa.seleciona_pessoa()
-    pessoa = self.pega_pessoa_por_doc(doc_pessoa)
+      try:
+          self.lista_pessoas()
+          doc_pessoa = self.__tela_pessoa.seleciona_pessoa()
+          pessoa = self.pega_pessoa_por_doc(doc_pessoa)
 
-    if pessoa is not None:
-      self.__pessoas.remove(pessoa)
-      self.lista_pessoas()
-    else:
-      self.__tela_pessoa.mostra_mensagem("ATENCAO: Pessoa não existente")
+          if pessoa is None:
+              raise ExclusaoException("Pessoa não existente.")
+
+          self.__pessoas.remove(pessoa)
+          self.lista_pessoas()
+
+      except ExclusaoException as e:
+          self.__tela_pessoa.mostra_mensagem(f"ATENÇÃO: {str(e)}")
 
   # Registra uma compra de carro para uma pessoa, associando o carro à pessoa selecionada
   def registra_compra(self):
