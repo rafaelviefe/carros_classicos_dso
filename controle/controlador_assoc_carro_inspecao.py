@@ -152,32 +152,36 @@ class ControladorAssocCarroInspecao:
         return self.__id_inspecao
     
     def inclui_registro(self):
-        data = self.__tela_associacao.obtem_data()
+        try:
+            data = self.__tela_associacao.obtem_data()
+            
+            # Verifica se já existe um registro para essa data e o exclui, se necessário
+            registro_existente = next((registro for registro in self.__registros if registro["data"] == data), None)
+            if registro_existente:
+                self.__registros.remove(registro_existente)
+                self.__tela_associacao.mostra_mensagem(f"Atualizando registro para a data: {data}.")
 
-        # Verifica se já existe um registro para essa data e o exclui, se necessário
-        registro_existente = next((registro for registro in self.__registros if registro["data"] == data), None)
-        if registro_existente:
-            self.__registros.remove(registro_existente)
-            self.__tela_associacao.mostra_mensagem(f"Atualizando registro para a data: {data}.")
+            carros_registrados = []
 
-        carros_registrados = []
-        
-        for assoc in self.__associacoes:
-            carro_registrado = self.gera_registro_carro(assoc, data, carros_registrados)
-            if carro_registrado:
-                carros_registrados.append(carro_registrado)
+            for assoc in self.__associacoes:
+                carro_registrado = self.gera_registro_carro(assoc, data, carros_registrados)
+                if carro_registrado:
+                    carros_registrados.append(carro_registrado)
 
-        registro = {
-            "data": data,
-            "carros": carros_registrados
-        }
+            if not carros_registrados:
+                raise InclusaoException("Nenhuma inspeção foi encontrada neste período.")
 
-        if not registro["carros"]:
-            self.__tela_associacao.mostra_mensagem("Nenhuma inspeção foi encontrada neste período...")
-            return
+            registro = {
+                "data": data,
+                "carros": carros_registrados
+            }
+            
+            self.__registros.append(registro)
+            self.__tela_associacao.mostra_registro(registro)
+            
+        except InclusaoException as e:
+            self.__tela_associacao.mostra_mensagem(str(e))
 
-        self.__registros.append(registro)
-        self.__tela_associacao.mostra_registro(registro)
 
     def gera_registro_carro(self, assoc, data, carros_registrados):
         carro = assoc.carro
@@ -205,53 +209,56 @@ class ControladorAssocCarroInspecao:
                     "ultimo_status": ultimo_status
                 }
         return None
-
+    
     def exclui_registro(self):
-        self.lista_registros()
-        data = self.__tela_associacao.obtem_data()
+        try:
+            self.lista_registros()
+            data = self.__tela_associacao.obtem_data()
 
-        # Busca o registro pela data fornecida e remove, se encontrado
-        for registro in self.__registros:
-            if registro["data"] == data:
-                self.__registros.remove(registro)
+            # Busca o registro pela data fornecida e remove, se encontrado
+            registro_encontrado = next((registro for registro in self.__registros if registro["data"] == data), None)
+
+            if registro_encontrado:
+                self.__registros.remove(registro_encontrado)
                 self.__tela_associacao.mostra_mensagem("Registro excluído com sucesso!")
-                return
+            else:
+                raise ExclusaoException("Nenhum registro encontrado para a data especificada.")
 
-        self.__tela_associacao.mostra_mensagem("Nenhum registro encontrado para a data especificada.")
+        except ExclusaoException as e:
+            self.__tela_associacao.mostra_mensagem(str(e))
 
     def altera_registro(self):
-        self.lista_registros()
-        self.__tela_associacao.mostra_mensagem("Precisamos da data do registro que deseja alterar.")
-        data_atual = self.__tela_associacao.obtem_data()
+        try:
+            self.lista_registros()
+            self.__tela_associacao.mostra_mensagem("Precisamos da data do registro que deseja alterar.")
+            data_atual = self.__tela_associacao.obtem_data()
 
-        registro_existente = next((registro for registro in self.__registros if registro["data"] == data_atual), None)
-        if not registro_existente:
-            self.__tela_associacao.mostra_mensagem("Nenhum registro encontrado para a data especificada.")
-            return
+            registro_existente = next((registro for registro in self.__registros if registro["data"] == data_atual), None)
+            if not registro_existente:
+                raise AlteracaoException("Nenhum registro encontrado para a data especificada.")
 
-        self.__tela_associacao.mostra_mensagem("Precisamos da nova data do registro.")
-        nova_data = self.__tela_associacao.obtem_data()
+            self.__tela_associacao.mostra_mensagem("Precisamos da nova data do registro.")
+            nova_data = self.__tela_associacao.obtem_data()
 
-        self.__registros.remove(registro_existente)
-        carros_registrados = []
+            self.__registros.remove(registro_existente)
+            carros_registrados = []
 
-        for assoc in self.__associacoes:
-            carro_registrado = self.gera_registro_carro(assoc, nova_data, carros_registrados)
-            if carro_registrado:
-                carros_registrados.append(carro_registrado)
+            for assoc in self.__associacoes:
+                carro_registrado = self.gera_registro_carro(assoc, nova_data, carros_registrados)
+                if carro_registrado:
+                    carros_registrados.append(carro_registrado)
 
-        novo_registro = {
-            "data": nova_data,
-            "carros": carros_registrados
-        }
+            novo_registro = {
+                "data": nova_data,
+                "carros": carros_registrados
+            }
 
-        if not novo_registro["carros"]:
-            self.__tela_associacao.mostra_mensagem("Nenhuma inspeção encontrada neste período...")
-            return
+            if not novo_registro["carros"]:
+                raise AlteracaoException("Nenhuma inspeção encontrada neste período...")
 
-        self.__registros.append(novo_registro)
-        self.__tela_associacao.mostra_mensagem(f"Registro atualizado para a nova data: {nova_data}.")
-        self.__tela_associacao.mostra_registro(novo_registro)
+            self.__registros.append(novo_registro)
+            self.__tela_associacao.mostra_mensagem(f"Registro atualizado para a nova data: {nova_data}.")
+            self.__tela_associacao.mostra_registro(novo_registro)
 
         except AlteracaoException as e:
             self.__tela_associacao.mostra_mensagem(str(e))
