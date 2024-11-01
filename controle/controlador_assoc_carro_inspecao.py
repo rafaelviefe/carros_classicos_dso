@@ -8,6 +8,7 @@ from exception.listagem_exception import ListagemException
 class ControladorAssocCarroInspecao:
     def __init__(self, controlador_sistema):
         self.__associacoes = []
+        self.__registros = []
         self.__tela_associacao = TelaAssocCarroInspecao()
         self.__controlador_sistema = controlador_sistema
         self.__id_inspecao = 0
@@ -16,18 +17,15 @@ class ControladorAssocCarroInspecao:
     def inclui_inspecao(self, vin=None, carro=None):
         self.__tela_associacao.mostra_mensagem("\nINICIANDO INSPEÇÃO...")
 
-        try:    
-            # Valida VIN e obtém o carro, se não fornecido
+        try:
             if not vin or not carro:
                 dados_carro = self.valida_vin()
                 vin, carro = dados_carro[0], dados_carro[1]
         
-            # Verifica se o carro pode ser inspecionado com base em inspeções anteriores
             avaliavel, cont_inapto = self.obtem_status_inspecao(vin)
             if not avaliavel:
                 raise InclusaoException("ATENÇÃO: Este carro foi reprovado e não pode mais ser inspecionado!")
             
-            # Verifica se o carro passa na inspeção e cria a associação
             apto, resultado = self.verifica_inspecao(carro, cont_inapto)
             id = self.gera_id()
             
@@ -48,11 +46,9 @@ class ControladorAssocCarroInspecao:
         pecas_atuais = self.obtem_pecas_carro(carro)
         pecas_esperadas = self.__tela_associacao.pega_pecas_esperadas()
 
-        # Compara peças e obtém peças discrepantes
         inspecao = self.compara_pecas(pecas_atuais, pecas_esperadas)
         apto, pecas_diferentes = inspecao[0], inspecao[1]
 
-        # Define o resultado com base na aptidão e contagem de inspeções reprovadas
         if apto:
             resultado = "aprovado"
         else:
@@ -71,7 +67,6 @@ class ControladorAssocCarroInspecao:
             "pintura": carro.pintura.codigo_cor
         }
     
-    # Retorna uma lista de inspeções associadas ao VIN fornecido.
     def busca_inspecoes_por_vin(self, vin):
         return [assoc for assoc in self.__associacoes if assoc.carro.documentacao.vin == vin]
  
@@ -97,7 +92,6 @@ class ControladorAssocCarroInspecao:
         pecas_diferentes = {}
         condizente = True
 
-        # Identifica peças que diferem das expectativas e marca inspeção como inconforme
         for peca in pecas:
             if pecas_atuais[peca] != pecas_esperadas[peca]:
                 pecas_diferentes[peca] = (pecas_atuais[peca], pecas_esperadas[peca])
@@ -155,12 +149,70 @@ class ControladorAssocCarroInspecao:
     def gera_id(self):
         self.__id_inspecao += 1
         return self.__id_inspecao
+    
+    def inclui_registro(self):
+        data = self.__tela_associacao.obtem_data()
+
+        # Verifica se já existe um registro para essa data e o exclui, se necessário
+        registro_existente = next((registro for registro in self.__registros if registro["data"] == data), None)
+        if registro_existente:
+            self.__registros.remove(registro_existente)
+            self.__tela_associacao.mostra_mensagem(f"Atualizando registro para a data: {data}.")
+
+        carros_registrados = []
+        
+        for assoc in self.__associacoes:
+            carro_registrado = self.gera_registro_carro(assoc, data, carros_registrados)
+            if carro_registrado:
+                carros_registrados.append(carro_registrado)
+
+        registro = {
+            "data": data,
+            "carros": carros_registrados
+        }
+
+        if not registro["carros"]:
+            self.__tela_associacao.mostra_mensagem("Nenhuma inspeção foi encontrada neste período...")
+            return
+
+        self.__registros.append(registro)
+        self.__tela_associacao.mostra_registro(registro)
+
+    def gera_registro_carro(self, assoc, data, carros_registrados):
+        carro = assoc.carro
+        vin = carro.documentacao.vin
+
+        vin_registrado = sum(1 for carro in carros_registrados if carro["vin"] == vin)
+        if not vin_registrado:
+            
+            inspecoes_mes = [
+                inspecao for inspecao in self.busca_inspecoes_por_vin(vin)
+                if inspecao.data == data
+            ]
+
+            if inspecoes_mes:
+                inspecoes_aprovadas = sum(1 for assoc in inspecoes_mes if assoc.inspecao.apto)
+                inspecoes_pendentes = sum(1 for assoc in inspecoes_mes if assoc.inspecao.resultado == "pendente")
+                inspecoes_reprovadas = len(inspecoes_mes) - inspecoes_aprovadas - inspecoes_pendentes
+                ultimo_status = inspecoes_mes[-1].inspecao.resultado
+
+                return {
+                    "vin": vin,
+                    "inspecoes_aprovadas": inspecoes_aprovadas,
+                    "inspecoes_pendentes": inspecoes_pendentes,
+                    "inspecoes_reprovadas": inspecoes_reprovadas,
+                    "ultimo_status": ultimo_status
+                }
+        return None
+
 
     def abre_tela(self):
         lista_opcoes = {
             1: self.inclui_inspecao,
             2: self.lista_inspecoes,
             3: self.exclui_inspecao,
+
+            4: self.inclui_registro,
             0: self.__controlador_sistema.abre_tela
         }
         

@@ -1,7 +1,7 @@
 class TelaAssocCarroInspecao:
     def tela_opcoes(self):
         opcao = -1  
-        while opcao not in [0, 1, 2, 3]:
+        while opcao not in [0, 1, 2, 3, 4, 5, 6, 7, 8]:
             try:
                 print()
                 print("-------- INSPEÇÕES ----------")
@@ -9,11 +9,19 @@ class TelaAssocCarroInspecao:
                 print("1 - Incluir inspeção")
                 print("2 - Listar inspeções")
                 print("3 - Excluir inspeção")
+                print()
+                print("-------- REGISTROS ----------")
+                print("4 - Incluir registro")
+                print("5 - Excluir registro")
+                print("6 - Alterar registro")
+                print("7 - Listar registros")
+                print("8 - Obter relatório")
+                print()
                 print("0 - Retornar")
                 print()
 
                 opcao = int(input("Escolha a opcao: "))
-                if opcao not in [0, 1, 2, 3]:
+                if opcao not in [0, 1, 2, 3, 4, 5, 6, 7, 8]:
                     print("Opção inválida! Por favor, escolha uma opção válida.")
             except ValueError:
                 print("Entrada inválida! Por favor, insira um número inteiro.")
@@ -77,5 +85,27 @@ class TelaAssocCarroInspecao:
         else:
             print("Nenhuma diferença encontrada nas peças.")
 
+    def obtem_data(self):
+        mes = -1
+        ano = -1
+        
+        while mes < 1 or mes > 12:
+            try:
+                mes = int(input("Digite o mês (1-12): ").strip())
+                if mes < 1 or mes > 12:
+                    print("Mês inválido! Por favor, insira um valor entre 1 e 12.")
+            except ValueError:
+                print("Entrada inválida! Por favor, insira um número inteiro para o mês.")
+        
+        while ano < 0:
+            try:
+                ano = int(input("Digite o ano: ").strip())
+                if ano < 0:
+                    print("Ano inválido! Por favor, insira um valor inteiro positivo.")
+            except ValueError:
+                print("Entrada inválida! Por favor, insira um número inteiro para o ano.")
+        
+        data_formatada = f"{mes:02d}-{ano}"
+        return data_formatada
     def mostra_mensagem(self, msg):
         print(msg)

@@ -1,5 +1,6 @@
 from entidade.carro_classico import CarroClassico
 from entidade.inspecao import Inspecao
+from datetime import datetime
 
 class AssocCarroInspecao:
     def __init__(self, carro: CarroClassico, id: int, apto: bool, resultado: str):
@@ -10,6 +11,7 @@ class AssocCarroInspecao:
         self.__id = id
         self.__inspecao = Inspecao(id, apto, resultado)
         self.__carro = carro
+        self.__data = datetime.today().strftime("%m-%Y")
 
     @property
     def id(self) -> int:
@@ -22,3 +24,7 @@ class AssocCarroInspecao:
     @property
     def inspecao(self) -> Inspecao:
         return self.__inspecao
+
+    @property
+    def data(self) -> str:
+        return self.__data
