@@ -205,6 +205,19 @@ class ControladorAssocCarroInspecao:
                 }
         return None
 
+    def exclui_registro(self):
+        self.lista_registros()
+        data = self.__tela_associacao.obtem_data()
+
+        # Busca o registro pela data fornecida e remove, se encontrado
+        for registro in self.__registros:
+            if registro["data"] == data:
+                self.__registros.remove(registro)
+                self.__tela_associacao.mostra_mensagem("Registro excluído com sucesso!")
+                return
+
+        self.__tela_associacao.mostra_mensagem("Nenhum registro encontrado para a data especificada.")
+
     def lista_registros(self):
         
         if not self.__registros:
@@ -222,6 +235,7 @@ class ControladorAssocCarroInspecao:
             3: self.exclui_inspecao,
 
             4: self.inclui_registro,
+            5: self.exclui_registro,
             7: self.lista_registros,
             0: self.__controlador_sistema.abre_tela
         }
