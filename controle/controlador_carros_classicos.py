@@ -4,6 +4,7 @@ from entidade.carro_classico import CarroClassico
 from exception.inclusao_exception import InclusaoException
 from exception.exclusao_exception import ExclusaoException
 from exception.listagem_exception import ListagemException
+from exception.alteracao_exception import AlteracaoException
 
 class ControladorCarrosClassicos:
 
@@ -48,7 +49,6 @@ class ControladorCarrosClassicos:
     # Inclui um novo carro na lista após verificar as peças e obter os dados do carro.
     def inclui_carro(self):
         try:
-            # Tenta criar o carro com as peças validadas
             motor, roda, pintura = self.obtem_e_verifica_pecas()
             dados_carro = self.__tela_carro_classico.pega_dados_carro()
             
@@ -76,44 +76,53 @@ class ControladorCarrosClassicos:
 
     # Modifica os dados de um carro existente na lista.
     def altera_carro(self):
-        self.lista_carros()
-        vin_carro = self.__tela_carro_classico.seleciona_carro()
-        carro = self.pega_carro_por_vin(vin_carro)
+        try:
+            self.lista_carros()
+            vin_carro = self.__tela_carro_classico.seleciona_carro()
+            carro = self.pega_carro_por_vin(vin_carro)
 
-        # Atualiza os atributos do carro se ele for encontrado.
-        if carro is not None:
+            if carro is None:
+                raise AlteracaoException("Carro não encontrado para alteração.")
+
+            # Atualiza os atributos do carro se ele for encontrado.
             novos_dados_carro = self.__tela_carro_classico.pega_alteracoes_carro()
             carro.documentacao.placa = novos_dados_carro["placa"]
             carro.quilometragem = novos_dados_carro["quilometragem"]
             carro.unidades_existentes = novos_dados_carro["unidades_existentes"]
             self.lista_carros()
-        else:
-            self.__tela_carro_classico.mostra_mensagem("ATENÇÃO: Carro não encontrado.")
+
+        except AlteracaoException as e:
+            self.__tela_carro_classico.mostra_mensagem(f"ATENÇÃO: {e}")
 
     # Realiza a substituição das peças de um carro após selecioná-lo.
     def troca_peca(self):
-        self.lista_carros()
-        vin_carro = self.__tela_carro_classico.seleciona_carro()
-        carro = self.pega_carro_por_vin(vin_carro)
+        try:
+            self.lista_carros()
+            vin_carro = self.__tela_carro_classico.seleciona_carro()
+            carro = self.pega_carro_por_vin(vin_carro)
 
-        # Valida a existência do carro antes de prosseguir com a troca das peças.
-        if carro is None:
-            self.__tela_carro_classico.mostra_mensagem("ATENÇÃO: Carro não encontrado.")
-            return
+            # Valida a existência do carro antes de prosseguir com a troca das peças.
+            if carro is None:
+                raise AlteracaoException("Carro não encontrado para troca de peças.")
 
-        # Obtém e verifica as novas peças a serem associadas ao carro.
-        motor, roda, pintura = self.obtem_e_verifica_pecas(vin_carro)
+            motor, roda, pintura = self.obtem_e_verifica_pecas(vin_carro)
 
-        if not motor or not roda or not pintura:
-            return
+            if not motor or not roda or not pintura:
+                raise AlteracaoException("Erro na verificação das novas peças para troca.")
 
-        # Realiza a troca das peças.
-        carro.motor = motor
-        carro.roda = roda
-        carro.pintura = pintura
+            # Realiza a troca das peças.
+            carro.motor = motor
+            carro.roda = roda
+            carro.pintura = pintura
 
-        self.__tela_carro_classico.mostra_mensagem("Peças trocadas com sucesso!")
-        self.lista_carros()
+            self.__tela_carro_classico.mostra_mensagem("Peças trocadas com sucesso!")
+            self.lista_carros()
+
+        except InclusaoException as e:
+            self.__tela_carro_classico.mostra_mensagem(f"ATENÇÃO: {e}")
+            
+        except AlteracaoException as e:
+            self.__tela_carro_classico.mostra_mensagem(f"ATENÇÃO: {e}")
 
     # Exibe todos os carros cadastrados, mostrando VIN, modelo, ano e unidades existentes.
     def lista_carros(self): 

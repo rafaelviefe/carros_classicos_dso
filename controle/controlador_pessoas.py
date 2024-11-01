@@ -5,6 +5,7 @@ from entidade.negociante import Negociante
 from exception.inclusao_exception import InclusaoException
 from exception.exclusao_exception import ExclusaoException
 from exception.listagem_exception import ListagemException
+from exception.alteracao_exception import AlteracaoException
 
 class ControladorPessoas():
 
@@ -41,16 +42,21 @@ class ControladorPessoas():
 
   # Permite alterar o nome de uma pessoa após selecioná-la pelo documento
   def altera_pessoa(self):
-    self.lista_pessoas()
-    doc_pessoa = self.__tela_pessoa.seleciona_pessoa()
-    pessoa = self.pega_pessoa_por_doc(doc_pessoa)
+    try:
+        self.lista_pessoas()
+        doc_pessoa = self.__tela_pessoa.seleciona_pessoa()
+        pessoa = self.pega_pessoa_por_doc(doc_pessoa)
 
-    if pessoa is not None:
-      novo_nome = self.__tela_pessoa.pega_novo_nome()
-      pessoa.nome = novo_nome
-      self.lista_pessoas()
-    else:
-      self.__tela_pessoa.mostra_mensagem("ATENCAO: Pessoa não encontrada")
+        if pessoa is None:
+            raise AlteracaoException("Pessoa não encontrada. Verifique o documento informado.")
+        
+        novo_nome = self.__tela_pessoa.pega_novo_nome()
+        pessoa.nome = novo_nome
+        self.lista_pessoas()
+
+    except AlteracaoException as e:
+        self.__tela_pessoa.mostra_mensagem(f"ATENÇÃO: {str(e)}")
+
 
   # Exibe uma lista de todas as pessoas registradas
   def lista_pessoas(self):
