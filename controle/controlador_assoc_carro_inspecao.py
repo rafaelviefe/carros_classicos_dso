@@ -218,6 +218,40 @@ class ControladorAssocCarroInspecao:
 
         self.__tela_associacao.mostra_mensagem("Nenhum registro encontrado para a data especificada.")
 
+    def altera_registro(self):
+        self.lista_registros()
+        self.__tela_associacao.mostra_mensagem("Precisamos da data do registro que deseja alterar.")
+        data_atual = self.__tela_associacao.obtem_data()
+
+        registro_existente = next((registro for registro in self.__registros if registro["data"] == data_atual), None)
+        if not registro_existente:
+            self.__tela_associacao.mostra_mensagem("Nenhum registro encontrado para a data especificada.")
+            return
+
+        self.__tela_associacao.mostra_mensagem("Precisamos da nova data do registro.")
+        nova_data = self.__tela_associacao.obtem_data()
+
+        self.__registros.remove(registro_existente)
+        carros_registrados = []
+
+        for assoc in self.__associacoes:
+            carro_registrado = self.gera_registro_carro(assoc, nova_data, carros_registrados)
+            if carro_registrado:
+                carros_registrados.append(carro_registrado)
+
+        novo_registro = {
+            "data": nova_data,
+            "carros": carros_registrados
+        }
+
+        if not novo_registro["carros"]:
+            self.__tela_associacao.mostra_mensagem("Nenhuma inspeção encontrada neste período...")
+            return
+
+        self.__registros.append(novo_registro)
+        self.__tela_associacao.mostra_mensagem(f"Registro atualizado para a nova data: {nova_data}.")
+        self.__tela_associacao.mostra_registro(novo_registro)
+
     def lista_registros(self):
         
         if not self.__registros:
