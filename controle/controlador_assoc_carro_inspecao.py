@@ -4,6 +4,7 @@ from limite.tela_assoc_carro_inpecao import TelaAssocCarroInspecao
 from exception.inclusao_exception import InclusaoException
 from exception.exclusao_exception import ExclusaoException
 from exception.listagem_exception import ListagemException
+from exception.alteracao_exception import AlteracaoException
 
 class ControladorAssocCarroInspecao:
     def __init__(self, controlador_sistema):
@@ -252,14 +253,19 @@ class ControladorAssocCarroInspecao:
         self.__tela_associacao.mostra_mensagem(f"Registro atualizado para a nova data: {nova_data}.")
         self.__tela_associacao.mostra_registro(novo_registro)
 
+        except AlteracaoException as e:
+            self.__tela_associacao.mostra_mensagem(str(e))
+    
     def lista_registros(self):
+        try:
+            if not self.__registros:
+                raise ListagemException("Nenhum registro foi encontrado.")
+            
+            for registro in self.__registros:
+                self.__tela_associacao.mostra_registro(registro)
         
-        if not self.__registros:
-            self.__tela_associacao.mostra_mensagem("Nenhum registro foi encontrado.")
-            return
-        
-        for registro in self.__registros:
-            self.__tela_associacao.mostra_registro(registro) 
+        except ListagemException as e:
+            self.__tela_associacao.mostra_mensagem(str(e))
 
     def obtem_relatorio(self):
         data = self.__tela_associacao.obtem_data()
