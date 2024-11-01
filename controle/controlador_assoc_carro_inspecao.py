@@ -205,6 +205,15 @@ class ControladorAssocCarroInspecao:
                 }
         return None
 
+    def lista_registros(self):
+        
+        if not self.__registros:
+            self.__tela_associacao.mostra_mensagem("Nenhum registro foi encontrado.")
+            return
+        
+        for registro in self.__registros:
+            self.__tela_associacao.mostra_registro(registro) 
+
 
     def abre_tela(self):
         lista_opcoes = {
@@ -213,6 +222,7 @@ class ControladorAssocCarroInspecao:
             3: self.exclui_inspecao,
 
             4: self.inclui_registro,
+            7: self.lista_registros,
             0: self.__controlador_sistema.abre_tela
         }
         
