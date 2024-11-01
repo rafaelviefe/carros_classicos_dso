@@ -261,6 +261,63 @@ class ControladorAssocCarroInspecao:
         for registro in self.__registros:
             self.__tela_associacao.mostra_registro(registro) 
 
+    def obtem_relatorio(self):
+        data = self.__tela_associacao.obtem_data()
+        
+        registro_mes = next((registro for registro in self.__registros if registro["data"] == data), None)
+        
+        if not registro_mes:
+            self.__tela_associacao.mostra_mensagem("Nenhum registro encontrado para a data especificada.")
+            return
+        
+        total_aprovadas = sum(carro["inspecoes_aprovadas"] for carro in registro_mes["carros"])
+        total_pendentes = sum(carro["inspecoes_pendentes"] for carro in registro_mes["carros"])
+        total_reprovadas = sum(carro["inspecoes_reprovadas"] for carro in registro_mes["carros"])
+        total_inspecoes = total_aprovadas + total_pendentes + total_reprovadas
+
+        porcentagem_aprovadas = (total_aprovadas / total_inspecoes) * 100 if total_inspecoes > 0 else 0
+        porcentagem_pendentes = (total_pendentes / total_inspecoes) * 100 if total_inspecoes > 0 else 0
+        porcentagem_reprovadas = (total_reprovadas / total_inspecoes) * 100 if total_inspecoes > 0 else 0
+
+        carros_por_inspecao = sorted(
+            [{"vin": carro["vin"], "qtd": carro["inspecoes_aprovadas"] + carro["inspecoes_pendentes"] + carro["inspecoes_reprovadas"]} 
+            for carro in registro_mes["carros"]],
+            key=lambda x: x["qtd"], reverse=True
+        )[:3]
+
+        carros_por_reprovacao = sorted(
+            [{"vin": carro["vin"], "porcentagem": ((carro["inspecoes_reprovadas"] + carro["inspecoes_pendentes"]) / (carro["inspecoes_aprovadas"] + carro["inspecoes_pendentes"] + carro["inspecoes_reprovadas"])) * 100}
+            for carro in registro_mes["carros"] if (carro["inspecoes_aprovadas"] + carro["inspecoes_pendentes"] + carro["inspecoes_reprovadas"]) > 0],
+            key=lambda x: x["porcentagem"], reverse=True
+        )[:3]
+
+        carros_por_aprovacao = sorted(
+            [{"vin": carro["vin"], "porcentagem": (carro["inspecoes_aprovadas"] / (carro["inspecoes_aprovadas"] + carro["inspecoes_pendentes"] + carro["inspecoes_reprovadas"])) * 100}
+            for carro in registro_mes["carros"] if (carro["inspecoes_aprovadas"] + carro["inspecoes_pendentes"] + carro["inspecoes_reprovadas"]) > 0],
+            key=lambda x: x["porcentagem"], reverse=True
+        )[:3]
+
+        relatorio = {
+            "data": data,
+            "total": total_inspecoes,
+            "aprovacao": {
+                "num": total_aprovadas,
+                "porcentagem": porcentagem_aprovadas
+            },
+            "pendencia": {
+                "num": total_pendentes,
+                "porcentagem": porcentagem_pendentes
+            },
+            "reprovacao": {
+                "num": total_reprovadas,
+                "porcentagem": porcentagem_reprovadas
+            },
+            "carros_por_inspecao": carros_por_inspecao,
+            "carros_por_reprovacao": carros_por_reprovacao,
+            "carros_por_aprovacao": carros_por_aprovacao
+        }
+        
+        self.__tela_associacao.mostra_relatorio(relatorio)
 
     def abre_tela(self):
         lista_opcoes = {
@@ -270,7 +327,11 @@ class ControladorAssocCarroInspecao:
 
             4: self.inclui_registro,
             5: self.exclui_registro,
+            6: self.altera_registro,
             7: self.lista_registros,
+
+            8: self.obtem_relatorio,
+
             0: self.__controlador_sistema.abre_tela
         }
         

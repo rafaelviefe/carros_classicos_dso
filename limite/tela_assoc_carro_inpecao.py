@@ -146,5 +146,30 @@ class TelaAssocCarroInspecao:
             print(f"  Inspeções reprovadas: {reprovadas}")
             print()
     
+    def mostra_relatorio(self, relatorio):
+        data = relatorio["data"]
+        print(f"\nRELATÓRIO DE INSPEÇÕES - DATA: {data}")
+
+        print("\nSTATUS:")
+        print(f"  - APROVADAS: {relatorio['aprovacao']['porcentagem']:.2f}% "
+            f"({relatorio['aprovacao']['num']}/{relatorio['total']})")
+        print(f"  - PENDENTES: {relatorio['pendencia']['porcentagem']:.2f}% "
+            f"({relatorio['pendencia']['num']}/{relatorio['total']})")
+        print(f"  - REPROVADAS: {relatorio['reprovacao']['porcentagem']:.2f}% "
+            f"({relatorio['reprovacao']['num']}/{relatorio['total']})")
+
+        print("\nRANKING DOS CARROS")
+        print("\nMAIS INSPEÇÕES:")
+        for i, carro in enumerate(relatorio["carros_por_inspecao"], 1):
+            print(f"  {i}° - O carro de VIN {carro['vin']} realizou {carro['qtd']} inspeções.")
+
+        print("\nMAIOR PERCENTUAL DE IRREGULARES:")
+        for i, carro in enumerate(relatorio["carros_por_reprovacao"], 1):
+            print(f"  {i}° - O carro de VIN {carro['vin']} teve {carro['porcentagem']:.2f}% de irregularidade.")
+
+        print("\nMAIOR PERCENTUAL DE APROVAÇÃO:")
+        for i, carro in enumerate(relatorio["carros_por_aprovacao"], 1):
+            print(f"  {i}° - O carro de VIN {carro['vin']} teve {carro['porcentagem']:.2f}% de aprovação.")
+
     def mostra_mensagem(self, msg):
         print(msg)
