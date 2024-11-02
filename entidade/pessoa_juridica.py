@@ -54,5 +54,3 @@ class PessoaJuridica(Pessoa):
         if not isinstance(documento, str):
             raise TypeError("O CNPJ deve ser uma string")
         self.__documento = documento
-
-    # função tratamento CNPJ

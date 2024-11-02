@@ -54,5 +54,3 @@ class Negociante(Pessoa):
         if not isinstance(documento, str):
             raise TypeError("O CPF deve ser uma string")
         self.__documento = documento
-
-    # função tratamento CPF
