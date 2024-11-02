@@ -1,7 +1,7 @@
-from documentacao import Documentacao
-from motor import Motor
-from roda import Roda
-from pintura import Pintura
+from entidade.documentacao import Documentacao
+from entidade.motor import Motor
+from entidade.roda import Roda
+from entidade.pintura import Pintura
 
 class Carro:
     def __init__(self, vin: str, placa: str, modelo: str, ano: int, quilometragem: float, motor: Motor, roda: Roda, pintura: Pintura, cambio: str):
