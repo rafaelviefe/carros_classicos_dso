@@ -13,6 +13,7 @@ class TelaSistema:
             'Carros': 2,
             'Inspeções': 3,
             'Peças': 4,
+            'Transferências': 5,
             'Finalizar': 0,
             None: 0,  # Para tratar o caso de fechamento da janela
         }.get(button, 0)
@@ -32,6 +33,7 @@ class TelaSistema:
             [sg.Button('Carros', size=(15, 2), button_color=('white', '#2a9df4'))],
             [sg.Button('Inspeções', size=(15, 2), button_color=('white', '#2a9df4'))],
             [sg.Button('Peças', size=(15, 2), button_color=('white', '#2a9df4'))],
+            [sg.Button('Transferências', size=(15, 2), button_color=('white', '#2a9df4'))],
             [sg.Button('Finalizar', size=(15, 2), button_color=('white', '#FF4C4C'))],
         ]
 
