@@ -218,7 +218,6 @@ class ControladorAssocCarroInspecao:
 
         self.__tela_associacao.mostra_relatorio(relatorio)
 
-
     def abre_tela(self):
         lista_opcoes = {
             1: self.inclui_inspecao,

@@ -159,26 +159,6 @@ class ControladorCarrosClassicos:
         except ExclusaoException as e:
             self.__tela_carro_classico.mostra_mensagem(str(e))
 
-    # Adiciona um valor de venda ao carro, se ele ainda não foi vendido
-    def vende_carro(self, vin, preco):
-        carro = self.pega_carro_por_vin(vin)
-
-        if carro is not None and len(carro.precos_venda) == len(carro.precos_compra):
-            carro.add_preco_venda(preco)
-            return True
-
-        return False
-
-    # Adiciona um valor de compra ao carro, se ele ainda não foi comprado
-    def compra_carro(self, vin, preco):
-        carro = self.pega_carro_por_vin(vin)
-
-        if carro is not None and len(carro.precos_venda) > len(carro.precos_compra):
-            if self.__controlador_sistema.controlador_assoc_carro_inspecao.inclui_inspecao(vin, carro):
-                carro.add_preco_compra(preco)
-                return True
-        return False
-
     # Verifica se a peça já está sendo utilizada
     def verifica_disponibilidade_peca(self, tipo_peca, identificador, carro_atual=""):
         for carro in self.__carros:

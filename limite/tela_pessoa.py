@@ -12,13 +12,11 @@ class TelaPessoa:
                 print("2 - Alterar Pessoa")
                 print("3 - Listar Pessoas")
                 print("4 - Excluir Pessoa")
-                print("5 - Registrar Compra")
-                print("6 - Registrar Venda")
                 print("0 - Retornar")
                 print()
 
                 opcao = int(input("Escolha a opcao: "))
-                if opcao not in [0, 1, 2, 3, 4, 5, 6]:
+                if opcao not in [0, 1, 2, 3, 4]:
                     print("Opção inválida! Por favor, escolha uma opção válida.")
             except ValueError:
                 print("Entrada inválida! Por favor, insira um número inteiro.")
@@ -103,31 +101,3 @@ class TelaPessoa:
             documento = input("Documento do cliente que deseja selecionar: ").strip()
 
         return documento
-    
-    def seleciona_carro(self):
-      vin = input("Documento do carro que deseja selecionar: ").strip()
-      while not vin:
-        print("Documento inválido! O documento não pode ser vazio.")
-        vin = input("Documento do carro que deseja selecionar: ").strip()
-
-      valor = input("Digite o valor da transferência: ").strip()
-
-      valor_float = None
-      valor_valido = False
-
-      while not valor_valido:
-        try:
-          valor_float = float(valor)
-          if valor_float < 0:
-            print("O valor não pode ser negativo. Tente novamente.")
-            valor = input("Digite o valor da transferência: ").strip()
-          else:
-            valor_valido = True 
-        except ValueError:
-          print("Valor inválido! Por favor, insira um número válido.")
-          valor = input("Digite o valor da transferência: ").strip()
-
-      return [vin, valor_float]
-
-    def mostra_mensagem(self, msg):
-        print(msg)
