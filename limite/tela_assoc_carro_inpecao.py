@@ -70,9 +70,9 @@ class TelaAssocCarroInspecao:
 
     def mostra_inspecao(self, assoc):
         print()
-        print("Número de ID:", assoc.id)
-        print("Apto:", "Sim" if assoc.inspecao.apto else "Não")
-        print("Resultado:", assoc.inspecao.resultado.capitalize())
+        print("Número de ID:", assoc["id"])
+        print("Apto:", "Sim" if assoc["apto"] else "Não")
+        print("Resultado:", assoc["resultado"].capitalize())
         print()
 
     def mostra_inconstancias(self, pecas_diferentes):

@@ -9,7 +9,6 @@ from exception.alteracao_exception import AlteracaoException
 class ControladorAssocCarroInspecao:
     def __init__(self, controlador_sistema):
         self.__associacoes = []
-        self.__registros = []
         self.__tela_associacao = TelaAssocCarroInspecao()
         self.__controlador_sistema = controlador_sistema
         self.__id_inspecao = 0
@@ -109,8 +108,13 @@ class ControladorAssocCarroInspecao:
             if not inspecoes:
                 raise ListagemException(f"Nenhuma inspeção encontrada para o VIN {vin}.")
             
-            for inspecao in inspecoes:
-                self.__tela_associacao.mostra_inspecao(inspecao)  
+            for assoc in inspecoes:
+                atributos = {
+                    "id": assoc.id,
+                    "apto": assoc.inspecao.apto,
+                    "resultado": assoc.inspecao.resultado
+                }
+                self.__tela_associacao.mostra_inspecao(atributos)  
             return inspecoes
         
         except ListagemException as e:
