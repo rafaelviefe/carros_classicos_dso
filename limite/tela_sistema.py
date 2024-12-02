@@ -1,22 +1,43 @@
-class TelaSistema:
-    def tela_opcoes(self):
-        opcao = -1
-        while opcao not in [0, 1, 2, 3, 4]:
-            try:
-                print()
-                print("-------- Concessionária Clássica ---------")
-                print("Escolha sua opcao")
-                print("1 - Clientes")
-                print("2 - Carros")
-                print("3 - Inspeções")
-                print("4 - Peças")
-                print("0 - Finalizar sistema")
-                print()
-                
-                opcao = int(input("Escolha a opcao: "))
-                if opcao not in [0, 1, 2, 3, 4]:
-                    print("Opção inválida! Por favor, escolha uma opção válida.")
-            except ValueError:
-                print("Entrada inválida! Por favor, insira um número inteiro.")
+import PySimpleGUI as sg
 
+class TelaSistema:
+    def __init__(self):
+        self.__window = None
+        self.init_components()
+
+    def tela_opcoes(self):
+        self.init_components()
+        button, _ = self.__window.Read()
+        opcao = {
+            'Clientes': 1,
+            'Carros': 2,
+            'Inspeções': 3,
+            'Peças': 4,
+            'Finalizar': 0,
+            None: 0,  # Para tratar o caso de fechamento da janela
+        }.get(button, 0)
+        self.close()
         return opcao
+
+    def close(self):
+        self.__window.Close()
+
+    def init_components(self):
+        sg.theme('BlueMono')  # Tema moderno e atrativo
+
+        layout = [
+            [sg.Text('Concessionária Clássica', font=("Helvetica", 30), justification='center', expand_x=True)],
+            [sg.Text('Escolha sua opção abaixo:', font=("Helvetica", 14), pad=(0, 20))],
+            [sg.Button('Clientes', size=(15, 2), button_color=('white', '#2a9df4'))],
+            [sg.Button('Carros', size=(15, 2), button_color=('white', '#2a9df4'))],
+            [sg.Button('Inspeções', size=(15, 2), button_color=('white', '#2a9df4'))],
+            [sg.Button('Peças', size=(15, 2), button_color=('white', '#2a9df4'))],
+            [sg.Button('Finalizar', size=(15, 2), button_color=('white', '#FF4C4C'))],
+        ]
+
+        self.__window = sg.Window(
+            'Sistema de Carros Clássicos',
+            layout,
+            element_justification='center',  # Centraliza os elementos
+            size=(600, 400),
+        )
