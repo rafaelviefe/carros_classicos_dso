@@ -9,19 +9,13 @@ class TelaAssocCarroInspecao:
                 print("1 - Incluir inspeção")
                 print("2 - Listar inspeções")
                 print("3 - Excluir inspeção")
-                print()
-                print("-------- REGISTROS ----------")
-                print("4 - Incluir registro")
-                print("5 - Excluir registro")
-                print("6 - Alterar registro")
-                print("7 - Listar registros")
-                print("8 - Obter relatório")
+                print("4 - Obter relatório")
                 print()
                 print("0 - Retornar")
                 print()
 
                 opcao = int(input("Escolha a opcao: "))
-                if opcao not in [0, 1, 2, 3, 4, 5, 6, 7, 8]:
+                if opcao not in [0, 1, 2, 3, 4]:
                     print("Opção inválida! Por favor, escolha uma opção válida.")
             except ValueError:
                 print("Entrada inválida! Por favor, insira um número inteiro.")
@@ -108,44 +102,6 @@ class TelaAssocCarroInspecao:
         data_formatada = f"{mes:02d}-{ano}"
         return data_formatada
 
-    def mostra_registro(self, registro):
-        print()
-        print(f"Data de Registro: {registro['data']}")
-        
-        total_aprovadas = sum(
-            carro_inspec["inspecoes_aprovadas"] for carro_inspec in registro["carros"]
-        )
-        total_pendentes = sum(
-            carro_inspec["inspecoes_pendentes"] for carro_inspec in registro["carros"]
-        )
-        total_reprovadas = sum(
-            carro_inspec["inspecoes_reprovadas"] for carro_inspec in registro["carros"]
-        )
-        total_inspecoes = total_aprovadas + total_pendentes + total_reprovadas
-        
-        print(f"Total de inspeções: {total_inspecoes}")
-        print(f"Inspeções aprovadas: {total_aprovadas}")
-        print(f"Inspeções pendentes: {total_pendentes}")
-        print(f"Inspeções reprovadas: {total_reprovadas}")
-        print()
-
-        print("--- DETALHES POR CARRO ---")
-        for carro_inspec in registro["carros"]:
-            aprovadas = carro_inspec['inspecoes_aprovadas']
-            pendentes = carro_inspec['inspecoes_pendentes']
-            reprovadas = carro_inspec['inspecoes_reprovadas']
-            encontradas = aprovadas + pendentes + reprovadas
-
-            print()
-            print(f"VIN: {carro_inspec['vin']}")
-            print()
-            print(f"  Último status: {carro_inspec['ultimo_status'].capitalize()}")
-            print(f"  Inspeções encontradas: {encontradas}")
-            print(f"  Inspeções aprovadas: {aprovadas}")
-            print(f"  Inspeções pendentes: {pendentes}")
-            print(f"  Inspeções reprovadas: {reprovadas}")
-            print()
-    
     def mostra_relatorio(self, relatorio):
         data = relatorio["data"]
         print(f"\nRELATÓRIO DE INSPEÇÕES - DATA: {data}")
