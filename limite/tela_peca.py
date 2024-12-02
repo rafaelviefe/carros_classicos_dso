@@ -1,240 +1,228 @@
+import PySimpleGUI as sg
+
 class TelaPeca:
+    def __init__(self):
+        self.__window = None
+
     def tela_opcoes(self):
-        opcao = -1  
-        while opcao not in [0, 1, 2, 3]:
-            try:
-                print()
-                print("-------- PEÇAS ----------")
-                print("Escolha a opção")
-                print("1 - Incluir Peça")
-                print("2 - Listar Peças")
-                print("3 - Excluir Peça")
-                print("0 - Retornar")
-                print()
-
-                opcao = int(input("Escolha a opção: "))
-                if opcao not in [0, 1, 2, 3]:
-                    print("Opção inválida! Por favor, escolha uma opção válida.")
-            except ValueError:
-                print("Entrada inválida! Por favor, insira um número inteiro.")
-
+        self.init_opcoes()
+        button, _ = self.open()
+        opcao = {
+            'Incluir Peça': 1,
+            'Listar Peças': 2,
+            'Excluir Peça': 3,
+            'Retornar': 0,
+        }.get(button, 0)
+        self.close()
         return opcao
 
+    def init_opcoes(self):
+        sg.theme('BlueMono')
+        layout = [
+            [sg.Text('Gerenciamento de Peças', font=("Helvetica", 28, "bold"), justification='center', expand_x=True)],
+            [sg.Text('Escolha sua opção abaixo:', font=("Helvetica", 16), justification='center', pad=(0, 20))],
+            [sg.Button('Incluir Peça', size=(20, 2), button_color=('white', '#2a9df4'))],
+            [sg.Button('Listar Peças', size=(20, 2), button_color=('white', '#2a9df4'))],
+            [sg.Button('Excluir Peça', size=(20, 2), button_color=('white', '#2a9df4'))],
+            [sg.Button('Retornar', size=(20, 2), button_color=('white', '#FF4C4C'))],
+        ]
+
+        self.__window = sg.Window(
+            'Sistema de Carros Clássicos - Peças',
+            layout,
+            element_justification='center',
+            size=(600, 400),
+        )
+
+    def pega_dados_generico(self, tipo_peca, campos):
+        sg.theme('BlueMono')
+        layout = [
+            [sg.Text(f'{tipo_peca.title()} - Cadastro', font=("Helvetica", 25), justification='center', pad=(0, 20))]
+        ]
+
+        for campo, tipo in campos.items():
+            layout.append([sg.Text(f"{campo}:", size=(20, 1)), sg.InputText('', key=campo)])
+
+        layout.append([
+            sg.Button('Confirmar', size=(15, 1), button_color=('white', '#2a9df4')),
+            sg.Button('Cancelar', size=(15, 1), button_color=('white', '#FF4C4C'))
+        ])
+
+        self.__window = sg.Window(f'Cadastro de {tipo_peca.title()}', layout, element_justification='center', size=(600, 400))
+
+        while True:
+            button, values = self.open()
+            if button in (None, 'Cancelar'):
+                self.close()
+                return None
+
+            try:
+                dados = {}
+                for campo, tipo in campos.items():
+                    valor = values[campo].strip()
+                    if tipo == "int":
+                        dados[campo] = int(valor) if valor else None
+                    elif tipo == "float":
+                        dados[campo] = float(valor) if valor else None
+                    else:
+                        dados[campo] = valor
+                self.close()
+                return dados
+            except ValueError:
+                self.mostra_mensagem("Entrada inválida! Verifique os campos e tente novamente.")
+
     def pega_dados_motor(self):
-        num_motor = input("Número do Motor: ").strip()
-        while not num_motor:
-            print("Número do Motor inválido! O campo não pode ser vazio.")
-            num_motor = input("Número do Motor: ").strip()
-
-        input_valido = False
-        while not input_valido:
-            try:
-                potencia = float(input("Potência: ").strip())
-                input_valido = True
-            except ValueError:
-                print("Potência inválida! Por favor, insira um número decimal.")
-
-        input_valido = False
-        while not input_valido:
-            try:
-                cilindrada = float(input("Cilindrada: ").strip())
-                input_valido = True
-            except ValueError:
-                print("Cilindrada inválida! Por favor, insira um número decimal.")
-
-        tipo_combustivel = input("Tipo de Combustível: ").strip()
-        while not tipo_combustivel:
-            print("Tipo de combustível inválido! O campo não pode ser vazio.")
-            tipo_combustivel = input("Tipo de Combustível: ").strip()
-
-        input_valido = False
-        while not input_valido:
-            try:
-                num_cilindros = int(input("Número de Cilindros: ").strip())
-                input_valido = True
-            except ValueError:
-                print("Número de cilindros inválido! Por favor, insira um número inteiro.")
-
-        input_valido = False
-        while not input_valido:
-            try:
-                torque = float(input("Torque: ").strip())
-                input_valido = True
-            except ValueError:
-                print("Torque inválido! Por favor, insira um número decimal.")
-
-        return {
-            "num_motor": num_motor,
-            "potencia": potencia,
-            "cilindrada": cilindrada,
-            "tipo_combustivel": tipo_combustivel,
-            "num_cilindros": num_cilindros,
-            "torque": torque
+        campos_motor = {
+            "num_motor": "str",
+            "potencia": "float",
+            "cilindrada": "float",
+            "tipo_combustivel": "str",
+            "num_cilindros": "int",
+            "torque": "float"
         }
+        return self.pega_dados_generico("Motor", campos_motor)
 
     def pega_dados_roda(self):
-        num_serie = input("Número de Série: ").strip()
-        while not num_serie:
-            print("Número de Série inválido! O campo não pode ser vazio.")
-            num_serie = input("Número de Série: ").strip()
-
-        input_valido = False
-        while not input_valido:
-            try:
-                largura = float(input("Largura: ").strip())
-                input_valido = True
-            except ValueError:
-                print("Largura inválida! Por favor, insira um número decimal.")
-
-        input_valido = False
-        while not input_valido:
-            try:
-                perfil = float(input("Perfil: ").strip())
-                input_valido = True
-            except ValueError:
-                print("Perfil inválido! Por favor, insira um número decimal.")
-
-        tipo = input("Tipo: ").strip()
-        while not tipo:
-            print("Tipo inválido! O campo não pode ser vazio.")
-            tipo = input("Tipo: ").strip()
-
-        input_valido = False
-        while not input_valido:
-            try:
-                diametro_aro = int(input("Diâmetro do Aro: ").strip())
-                input_valido = True
-            except ValueError:
-                print("Diâmetro do aro inválido! Por favor, insira um número inteiro.")
-
-        input_valido = False
-        while not input_valido:
-            try:
-                indice_carga = int(input("Índice de Carga: ").strip())
-                input_valido = True
-            except ValueError:
-                print("Índice de carga inválido! Por favor, insira um número inteiro.")
-
-        indice_velocidade = input("Índice de Velocidade: ").strip()
-        while not indice_velocidade:
-            print("Índice de velocidade inválido! O campo não pode ser vazio.")
-            indice_velocidade = input("Índice de Velocidade: ").strip()
-
-        return {
-            "num_serie": num_serie,
-            "largura": largura,
-            "perfil": perfil,
-            "tipo": tipo,
-            "diametro_aro": diametro_aro,
-            "indice_carga": indice_carga,
-            "indice_velocidade": indice_velocidade
+        campos_roda = {
+            "num_serie": "str",
+            "largura": "float",
+            "perfil": "float",
+            "tipo": "str",
+            "diametro_aro": "int",
+            "indice_carga": "int",
+            "indice_velocidade": "str"
         }
+        return self.pega_dados_generico("Roda", campos_roda)
 
     def pega_dados_pintura(self):
-        codigo_cor = input("Código da Cor: ").strip()
-        while not codigo_cor:
-            print("Código da cor inválido! O campo não pode ser vazio.")
-            codigo_cor = input("Código da Cor: ").strip()
-
-        cor = input("Cor: ").strip()
-        while not cor:
-            print("Cor inválida! O campo não pode ser vazio.")
-            cor = input("Cor: ").strip()
-
-        tipo = input("Tipo de Pintura: ").strip()
-        while not tipo:
-            print("Tipo inválido! O campo não pode ser vazio.")
-            tipo = input("Tipo de Pintura: ").strip()
-
-        input_valido = False
-        while not input_valido:
-            try:
-                camadas = int(input("Número de Camadas: ").strip())
-                input_valido = True
-            except ValueError:
-                print("Número de camadas inválido! Por favor, insira um número inteiro.")
-
-        return {
-            "codigo_cor": codigo_cor,
-            "cor": cor,
-            "tipo": tipo,
-            "camadas": camadas
+        campos_pintura = {
+            "codigo_cor": "str",
+            "cor": "str",
+            "tipo": "str",
+            "camadas": "int"
         }
+        return self.pega_dados_generico("Pintura", campos_pintura)
     
-    def mostra_motor(self, dados_motor):
-        print()
-        print("Número do Motor:", dados_motor["num_motor"])
-        print("Potência:", dados_motor["potencia"])
-        print("Cilindrada:", dados_motor["cilindrada"])
-        print("Tipo de Combustível:", dados_motor["tipo_combustivel"])
-        print("Número de Cilindros:", dados_motor["num_cilindros"])
-        print("Torque:", dados_motor["torque"])
-        print()
+    def mostra_lista_pecas(self, tipo_peca_plural, lista_pecas):
+        sg.theme('BlueMono')
 
-    def mostra_roda(self, dados_roda):
-        print()
-        print("Número de Série:", dados_roda["num_serie"])
-        print("Largura:", dados_roda["largura"])
-        print("Perfil:", dados_roda["perfil"])
-        print("Tipo:", dados_roda["tipo"])
-        print("Diâmetro do Aro:", dados_roda["diametro_aro"])
-        print("Índice de Carga: ", dados_roda["indice_carga"])
-        print("Índice de Velocidade:", dados_roda["indice_velocidade"])
-        print()
+        if not lista_pecas:
+            sg.popup("Nenhuma peça encontrada.", title="Erro")
+            return
 
-    def mostra_pintura(self, dados_pintura):
-        print()
-        print("Código da Cor:", dados_pintura["codigo_cor"])
-        print("Cor:", dados_pintura["cor"])
-        print("Tipo de Pintura:", dados_pintura["tipo"])
-        print("Número de Camadas:", dados_pintura["camadas"])
-        print()
+        headers = list(lista_pecas[0].keys())
+        data = [list(item.values()) for item in lista_pecas]
+
+        layout = [
+            [sg.Text(f'Lista de {tipo_peca_plural.title()}', font=("Helvetica", 25), justification='center', pad=(0, 20))],
+            [sg.Table(
+                values=data,
+                headings=headers,
+                auto_size_columns=False,
+                justification='center',
+                num_rows=min(15, len(data)),
+                background_color='#f0f8ff',
+                alternating_row_color='#e6f2ff',
+                text_color='#000',
+                header_background_color='#007acc',
+                header_text_color='#fff',
+                font=("Helvetica", 12),
+                key='-TABLE-',
+                expand_x=True,
+                expand_y=True
+            )],
+            [sg.Button('Fechar', size=(15, 1), button_color=('white', '#2a9df4'))],
+        ]
+
+        window = sg.Window(f'Lista de {tipo_peca_plural.title()}', layout, element_justification='center', size=(1000, 600))
+        while True:
+            event, _ = window.read()
+            if event in (sg.WIN_CLOSED, 'Fechar'):
+                break
+        window.close()
 
     def seleciona_tipo(self):
-        print()
-        print("Selecione o tipo de peça:")
-        print("1 - Motor")
-        print("2 - Roda")
-        print("3 - Pintura")
-        print()
+        sg.theme('BlueMono')
+        layout = [
+            [sg.Text('Selecione o tipo de peça:', font=("Helvetica", 16), justification='center', pad=(0, 20))],
+            [sg.Button('Motor', size=(20, 2), button_color=('white', '#2a9df4'))],
+            [sg.Button('Roda', size=(20, 2), button_color=('white', '#2a9df4'))],
+            [sg.Button('Pintura', size=(20, 2), button_color=('white', '#2a9df4'))],
+            [sg.Button('Cancelar', size=(20, 2), button_color=('white', '#FF4C4C'))],
+        ]
 
-        tipo_peca = -1
-        while tipo_peca not in [1, 2, 3]:
-            try:
-                tipo_peca = int(input("Escolha o tipo de peça: "))
-                if tipo_peca not in [1, 2, 3]:
-                    print("Opção inválida! Por favor, escolha uma opção válida.")
-            except ValueError:
-                print("Entrada inválida! Por favor, insira um número inteiro.")
+        self.__window = sg.Window('Seleção de Tipo de Peça', layout, size=(600, 400), element_justification='center')
+        button, _ = self.open()
 
-        if tipo_peca == 1:
-            return "motor"
-        elif tipo_peca == 2:
-            return "roda"
-        return "pintura"
+        tipos = {
+            'Motor': "motor",
+            'Roda': "roda",
+            'Pintura': "pintura",
+            'Cancelar': None,
+        }
+        self.close()
+        return tipos.get(button)
+
+    def peca_opcoes(self):
+        sg.ChangeLookAndFeel('DarkTeal4')
+        layout = [
+        [sg.Text('-------- PECAS ----------', font=("Helvica", 25))],
+        [sg.Text('Selecione o tipo de peça:', font=("Helvica", 15))],
+        [sg.Radio('Motor', "RD1", key='1')],
+        [sg.Radio('Roda', "RD1", key='2')],
+        [sg.Radio('Pintura', "RD1", key='3')],
+        [sg.Button('Confirmar'), sg.Cancel('Cancelar')]
+        ]
+        self.__window = sg.Window('Sistema de Carros Classicos').Layout(layout)
 
     def seleciona_peca(self):
         tipo = self.seleciona_tipo()
+        if not tipo:
+            return None, None
 
-        if tipo == "motor":
-            identificador = input("Informe o número do motor: ").strip()
-            while not identificador:
-                print("Número do motor inválido! O campo não pode ser vazio.")
-                identificador = input("Informe o número do motor: ").strip()
+        label = {
+            "motor": "Informe o número do motor:",
+            "roda": "Informe o número de série da roda:",
+            "pintura": "Informe o código da cor da pintura:",
+        }[tipo]
 
-        elif tipo == "roda":
-            identificador = input("Informe o número de série da roda: ").strip()
-            while not identificador:
-                print("Número de série inválido! O campo não pode ser vazio.")
-                identificador = input("Informe o número de série da roda: ").strip()
+        sg.theme('BlueMono')
+        layout = [
+            [sg.Text(label, font=("Helvetica", 16), justification='center', pad=(0, 20))],
+            [sg.InputText('', key='identificador', size=(30, 1))],
+            [sg.Button('Confirmar', size=(15, 1), button_color=('white', '#2a9df4')),
+             sg.Button('Cancelar', size=(15, 1), button_color=('white', '#FF4C4C'))],
+        ]
 
-        else:
-            identificador = input("Informe o código da cor da pintura: ").strip()
-            while not identificador:
-                print("Código da cor inválido! O campo não pode ser vazio.")
-                identificador = input("Informe o código da cor da pintura: ").strip()
+        self.__window = sg.Window(f'Seleção de {tipo.title()}', layout, element_justification='center', size=(600, 300))
+        while True:
+            button, values = self.open()
+            if button in (None, 'Cancelar'):
+                self.close()
+                return None, None
 
-        return tipo, identificador
+            identificador = values['identificador'].strip()
+            if identificador:
+                self.close()
+                return tipo, identificador
+            else:
+                self.mostra_mensagem("O campo não pode estar vazio. Tente novamente.")
 
     def mostra_mensagem(self, msg):
-        print(msg)
+        sg.theme('BlueMono')
+        layout = [
+            [sg.Text('Mensagem', font=("Helvetica", 20), justification='center', expand_x=True)],
+            [sg.Text(msg, font=("Helvetica", 14), justification='center', pad=(0, 20))],
+            [sg.Button('OK', size=(15, 1), button_color=('white', '#2a9df4'))],
+        ]
+
+        window = sg.Window('Mensagem', layout, element_justification='center', modal=True)
+        window.read()
+        window.close()
+
+    def close(self):
+        self.__window.Close()
+
+    def open(self):
+        button, values = self.__window.Read()
+        return button, values

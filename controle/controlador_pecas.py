@@ -77,35 +77,51 @@ class ControladorPecas:
     def lista_pecas(self):
         tipo_peca = self.__tela_peca.seleciona_tipo()
         try:
+            lista_pecas = []
+
             if tipo_peca == "motor":
                 if not self.__pecas["motor"]:
                     raise ListagemException("Nenhum motor cadastrado.")
+                tipo_plural = "motores"
                 for motor in self.__pecas["motor"]:
-                    self.__tela_peca.mostra_motor({
-                        "num_motor": motor.num_motor, "potencia": motor.potencia,
-                        "cilindrada": motor.cilindrada, "tipo_combustivel": motor.tipo_combustivel,
-                        "num_cilindros": motor.num_cilindros, "torque": motor.torque
+                    lista_pecas.append({
+                        "Núm - Motor": motor.num_motor,
+                        "Potência": motor.potencia,
+                        "Cilindrada": motor.cilindrada,
+                        "Tipo - Combustível": motor.tipo_combustivel,
+                        "Núm - Cilindros": motor.num_cilindros,
+                        "Torque": motor.torque
                     })
 
             elif tipo_peca == "roda":
                 if not self.__pecas["roda"]:
                     raise ListagemException("Nenhuma roda cadastrada.")
+                tipo_plural = "rodas"
                 for roda in self.__pecas["roda"]:
-                    self.__tela_peca.mostra_roda({
-                        "num_serie": roda.num_serie, "largura": roda.largura,
-                        "perfil": roda.perfil, "tipo": roda.tipo, "diametro_aro": roda.diametro_aro,
-                        "indice_carga": roda.indice_carga, "indice_velocidade": roda.indice_velocidade
+                    lista_pecas.append({
+                        "Núm - Série": roda.num_serie,
+                        "Largura": roda.largura,
+                        "Perfil": roda.perfil,
+                        "Tipo": roda.tipo,
+                        "Diâmetro - Aro": roda.diametro_aro,
+                        "Índ - Carga": roda.indice_carga,
+                        "Índ - Velocidade": roda.indice_velocidade
                     })
 
             elif tipo_peca == "pintura":
                 if not self.__pecas["pintura"]:
                     raise ListagemException("Nenhuma pintura cadastrada.")
+                tipo_plural = "pinturas"
                 for pintura in self.__pecas["pintura"]:
-                    self.__tela_peca.mostra_pintura({
-                        "codigo_cor": pintura.codigo_cor, "cor": pintura.cor,
-                        "tipo": pintura.tipo, "camadas": pintura.camadas
+                    lista_pecas.append({
+                        "Código da Cor": pintura.codigo_cor,
+                        "Cor": pintura.cor,
+                        "Tipo - Pintura": pintura.tipo,
+                        "Núm - Camadas": pintura.camadas
                     })
-                    
+
+            self.__tela_peca.mostra_lista_pecas(tipo_plural, lista_pecas)
+
         except ListagemException as e:
             self.__tela_peca.mostra_mensagem(str(e))
 
