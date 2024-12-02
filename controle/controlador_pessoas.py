@@ -60,16 +60,27 @@ class ControladorPessoas():
 
   # Exibe uma lista de todas as pessoas registradas
   def lista_pessoas(self):
-      try:
-          if not self.__pessoas:
-              raise ListagemException("A lista de pessoas está vazia.")
+    try:
+        if not self.__pessoas:
+            raise ListagemException("A lista de pessoas está vazia.")
 
-          # Exibe os detalhes das pessoas
-          for pessoa in self.__pessoas:
-              self.__tela_pessoa.mostra_pessoa({"nome": pessoa.nome, "documento": pessoa.documento, "carros": pessoa.carros})
+        for pessoa in self.__pessoas:
+            dados_pessoa = {
+                "nome": pessoa.nome,
+                "documento": pessoa.documento,
+            }
+            self.__tela_pessoa.mostra_pessoa(dados_pessoa)
 
-      except ListagemException as e:
-          self.__tela_pessoa.mostra_mensagem(f"ATENÇÃO: {str(e)}")
+            for carro in pessoa.carros:
+                dados_carro = {
+                    "vin": carro.documentacao.vin,
+                    "modelo": carro.documentacao.modelo,
+                    "ano": carro.documentacao.ano,
+                }
+                self.__tela_pessoa.mostra_carro(dados_carro)
+
+    except ListagemException as e:
+        self.__tela_pessoa.mostra_mensagem(f"ATENÇÃO: {str(e)}")
 
   # Remove uma pessoa da lista após selecioná-la pelo documento
   def exclui_pessoa(self):

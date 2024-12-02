@@ -89,11 +89,11 @@ class TelaPessoa:
         print("Nome do cliente:", dados_pessoa["nome"])
         print("Documento do cliente:", dados_pessoa["documento"])
         print()
-        for carro in dados_pessoa["carros"]:
-            print("  Vin:", carro.documentacao.vin)
-            print("  Modelo:", carro.documentacao.modelo)
-            print("  Ano:", carro.documentacao.ano)
-            print()
+
+    def mostra_carro(self, dados_carro):
+        print("  Vin:", dados_carro["vin"])
+        print("  Modelo:", dados_carro["modelo"])
+        print("  Ano:", dados_carro["ano"])
         print()
 
     def seleciona_pessoa(self):
