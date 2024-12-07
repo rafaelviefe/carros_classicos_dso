@@ -3,12 +3,12 @@ from entidade.negociante import Negociante
 from entidade.carro_classico import CarroClassico
 
 class Transferencia:
-    def __init__(self, id: int, ref_pessoa, ref_carro: CarroClassico, tipo: str, valor: float):
+    def __init__(self, id: int, pessoa, carro: CarroClassico, tipo: str, valor: float):
         if not isinstance(id, int):
             raise TypeError("O ID deve ser um número inteiro")
-        if not isinstance(ref_pessoa, (PessoaJuridica, Negociante)):
+        if not isinstance(pessoa, (PessoaJuridica, Negociante)):
             raise TypeError("O documento da pessoa deve ser uma instância de Pessoa")
-        if not isinstance(ref_carro, CarroClassico):
+        if not isinstance(carro, CarroClassico):
             raise TypeError("O VIN do carro deve ser uma instância de Carro Clássico")
         if tipo not in ("compra", "venda"):
             raise ValueError("O tipo de transferência deve ser 'compra' ou 'venda'")
@@ -16,8 +16,8 @@ class Transferencia:
             raise ValueError("O valor deve ser um número positivo")
 
         self.__id = id
-        self.__ref_pessoa = ref_pessoa
-        self.__ref_carro = ref_carro
+        self.__pessoa = pessoa
+        self.__carro = carro
         self.__tipo = tipo
         self.__valor = float(valor)
 
@@ -26,24 +26,24 @@ class Transferencia:
         return self.__id
 
     @property
-    def ref_pessoa(self) -> str:
-        return self.__ref_pessoa
+    def pessoa(self) -> str:
+        return self.__pessoa
 
-    @ref_pessoa.setter
-    def ref_pessoa(self, ref_pessoa):
-        if not isinstance(ref_pessoa, (PessoaJuridica, Negociante)):
-            raise TypeError("O ref_pessoa deve ser uma instância de Pessoa")
-        self.__ref_pessoa = ref_pessoa
+    @pessoa.setter
+    def pessoa(self, pessoa):
+        if not isinstance(pessoa, (PessoaJuridica, Negociante)):
+            raise TypeError("O pessoa deve ser uma instância de Pessoa")
+        self.__pessoa = pessoa
 
     @property
-    def ref_carro(self) -> str:
-        return self.__ref_carro
+    def carro(self) -> str:
+        return self.__carro
 
-    @ref_carro.setter
-    def ref_carro(self, ref_carro: CarroClassico):
-        if not isinstance(ref_carro, CarroClassico):
-            raise TypeError("O ref_carro deve ser uma instância de Carro Clássico")
-        self._ref_carro = ref_carro
+    @carro.setter
+    def carro(self, carro: CarroClassico):
+        if not isinstance(carro, CarroClassico):
+            raise TypeError("O carro deve ser uma instância de Carro Clássico")
+        self._carro = carro
 
     @property
     def tipo(self) -> str:

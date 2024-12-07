@@ -20,7 +20,7 @@ class ControladorTransferencias:
     # Verifica a última transferência de um carro
     def ultima_transferencia(self, vin):
         transferencias_carro = [
-            transf for transf in self.__transferencias if transf.ref_carro.documentacao.vin == vin
+            transf for transf in self.__transferencias if transf.carro.documentacao.vin == vin
         ]
         return transferencias_carro[-1] if transferencias_carro else None
 
@@ -49,7 +49,7 @@ class ControladorTransferencias:
                     raise InclusaoException("Este carro já foi comprado e não pode ser comprado novamente.")
                 
                 if ultima_transf and ultima_transf.tipo == "venda":
-                    vendedor_doc = ultima_transf.ref_pessoa.documento
+                    vendedor_doc = ultima_transf.pessoa.documento
                     if vendedor_doc != cpf_cnpj:
                         raise InclusaoException("O vendedor informado não possui este carro.")
                 
@@ -64,8 +64,8 @@ class ControladorTransferencias:
             id_transferencia = self.gera_id()
             transferencia = Transferencia(
                 id=id_transferencia,
-                ref_pessoa=pessoa,
-                ref_carro=carro,
+                pessoa=pessoa,
+                carro=carro,
                 tipo=tipo,
                 valor=dados_transferencia["valor"]
             )
@@ -81,7 +81,7 @@ class ControladorTransferencias:
             vin = self.__tela_transferencia.pega_vin()
 
         try:
-            transferencias_filtradas = [trans for trans in self.__transferencias if trans.ref_carro.documentacao.vin == vin]
+            transferencias_filtradas = [trans for trans in self.__transferencias if trans.carro.documentacao.vin == vin]
 
             if not transferencias_filtradas:
                 raise ListagemException(f"Nenhuma transferência encontrada para o VIN {vin}.")
@@ -89,8 +89,8 @@ class ControladorTransferencias:
             for trans in transferencias_filtradas:
                 atributos = {
                     "id": trans.id,
-                    "documento_pessoa": trans.ref_pessoa.documento,
-                    "vin_carro": trans.ref_carro.documentacao.vin,
+                    "documento_pessoa": trans.pessoa.documento,
+                    "vin_carro": trans.carro.documentacao.vin,
                     "tipo": trans.tipo,
                     "valor": trans.valor
                 }
@@ -142,10 +142,10 @@ class ControladorTransferencias:
         carros = []
         verificados = []
         for transferencia in reversed(self.__transferencias):
-            vin = transferencia.ref_carro.documentacao.vin
+            vin = transferencia.carro.documentacao.vin
             if vin not in verificados:
                 verificados.append(vin)
-                if transferencia.tipo == "venda" and transferencia.ref_pessoa.documento == documento:
+                if transferencia.tipo == "venda" and transferencia.pessoa.documento == documento:
                     carro = self.__controlador_sistema.controlador_carros_classicos.pega_carro_por_vin(vin)
                     if carro and carro not in carros:
                         carros.append(carro)
