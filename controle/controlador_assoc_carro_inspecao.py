@@ -5,9 +5,11 @@ from exception.inclusao_exception import InclusaoException
 from exception.exclusao_exception import ExclusaoException
 from exception.listagem_exception import ListagemException
 
+from DAOs.assoc_carro_inspecao_dao import AssocCarroInspecaoDAO
+
 class ControladorAssocCarroInspecao:
     def __init__(self, controlador_sistema):
-        self.__associacoes = []
+        self.__assoc_carro_inspecao_DAO = AssocCarroInspecaoDAO()
         self.__tela_associacao = TelaAssocCarroInspecao()
         self.__controlador_sistema = controlador_sistema
         self.__id_inspecao = 0
@@ -30,7 +32,7 @@ class ControladorAssocCarroInspecao:
             
             try:
                 inspecao = AssocCarroInspecao(carro, id, apto, resultado)
-                self.__associacoes.append(inspecao)
+                self.__assoc_carro_inspecao_DAO.add(inspecao)
                 return apto
             except (TypeError, ValueError) as e:
                 self.__tela_associacao.mostra_mensagem(f"Erro ao criar inspeção: {str(e)}")
@@ -67,7 +69,7 @@ class ControladorAssocCarroInspecao:
         }
     
     def busca_inspecoes_por_vin(self, vin):
-        return [assoc for assoc in self.__associacoes if assoc.carro.documentacao.vin == vin]
+        return [assoc for assoc in self.__assoc_carro_inspecao_DAO.get_all() if assoc.carro.documentacao.vin == vin]
  
      # Verifica o status de elegibilidade de inspeções anteriores de um veículo, permitindo ou não uma nova inspeção.
     def obtem_status_inspecao(self, vin):
@@ -129,7 +131,7 @@ class ControladorAssocCarroInspecao:
             id_selecionado = self.__tela_associacao.pega_id()
             for inspecao in inspecoes:
                 if inspecao.id == id_selecionado:
-                    self.__associacoes.remove(inspecao)
+                    self.__assoc_carro_inspecao_DAO.remove(inspecao.id)
                     self.__tela_associacao.mostra_mensagem("Inspeção excluída com sucesso!")
                     return
 
@@ -151,14 +153,18 @@ class ControladorAssocCarroInspecao:
         return [vin, carro]
 
     def gera_id(self):
-        self.__id_inspecao += 1
+
+        assocs = self.__assoc_carro_inspecao_DAO.get_all()
+        ultimo_id = next(reversed(assocs)).id
+
+        self.__id_inspecao = ultimo_id + 1
         return self.__id_inspecao
     
     def obtem_relatorio(self):
         data = self.__tela_associacao.obtem_data()
 
         associacoes_filtradas = [
-            assoc for assoc in self.__associacoes
+            assoc for assoc in self.__assoc_carro_inspecao_DAO.get_all()
             if assoc.data == data
         ]
 
