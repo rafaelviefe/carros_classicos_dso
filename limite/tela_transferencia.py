@@ -25,10 +25,10 @@ class TelaTransferencia:
     def pega_dados_transferencia(self):
         print("\nInforme os dados da transferência:")
         
-        carro_vin = input("VIN do carro: ").strip()
-        while not carro_vin:
+        vin_carro = input("VIN do carro: ").strip()
+        while not vin_carro:
             print("VIN inválido! Por favor, insira um VIN válido.")
-            carro_vin = input("VIN do carro: ").strip()
+            vin_carro = input("VIN do carro: ").strip()
 
         tipo = ""
         while tipo not in ["compra", "venda"]:
@@ -51,7 +51,7 @@ class TelaTransferencia:
                 print("Entrada inválida! Por favor, insira um número para o valor.")
 
         return {
-            "carro_vin": carro_vin,
+            "vin_carro": vin_carro,
             "tipo": tipo,
             "documento_pessoa": documento,
             "valor": valor,
@@ -60,16 +60,6 @@ class TelaTransferencia:
     def pega_alteracoes_transferencia(self):
         print("\nInforme os dados da transferência:")
         
-        carro_vin = input("VIN do carro: ").strip()
-        while not carro_vin:
-            print("VIN inválido! Por favor, insira um VIN válido.")
-            carro_vin = input("VIN do carro: ").strip()
-
-        documento = input("Documento da pessoa (CPF/CNPJ): ").strip()
-        while not documento:
-            print("Documento inválido! O campo não pode ser vazio.")
-            documento = input("Documento da pessoa (CPF/CNPJ): ").strip()
-
         valor = -1
         while valor <= 0:
             try:
@@ -80,16 +70,14 @@ class TelaTransferencia:
                 print("Entrada inválida! Por favor, insira um número para o valor.")
 
         return {
-            "carro_vin": carro_vin,
-            "documento_pessoa": documento,
             "valor": valor,
         }
 
     def pega_vin(self):
-        vin = input("VIN do carro para listar transferências: ").strip()
+        vin = input("Digite o VIN do carro em questão: ").strip()
         while not vin:
             print("VIN inválido! Por favor, insira um VIN válido.")
-            vin = input("VIN do carro para listar transferências: ").strip()
+            vin = input("Digite o VIN do carro em questão: ").strip()
         return vin
 
     def pega_id(self):
@@ -106,9 +94,9 @@ class TelaTransferencia:
     def mostra_transferencia(self, transferencia):
         print("\nDados da Transferência:")
         print(f"ID: {transferencia['id']}")
-        print(f"VIN do carro: {transferencia['carro_vin']}")
+        print(f"VIN do carro: {transferencia['vin_carro']}")
         print(f"Tipo: {transferencia['tipo'].capitalize()}")
-        print(f"Documento: {transferencia['documento']}")
+        print(f"Documento: {transferencia['documento_pessoa']}")
         print(f"Valor: R$ {transferencia['valor']:.2f}")
         print()
 

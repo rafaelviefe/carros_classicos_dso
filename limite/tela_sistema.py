@@ -41,5 +41,5 @@ class TelaSistema:
             'Sistema de Carros Clássicos',
             layout,
             element_justification='center',  # Centraliza os elementos
-            size=(600, 400),
+            size=(600, 500),
         )
