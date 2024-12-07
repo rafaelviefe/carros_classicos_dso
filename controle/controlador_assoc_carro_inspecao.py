@@ -177,22 +177,27 @@ class ControladorAssocCarroInspecao:
         porcentagem_reprovadas = (total_reprovadas / total_inspecoes) * 100 if total_inspecoes > 0 else 0
 
         carros_por_inspecao = sorted(
-            [{"vin": assoc.carro.documentacao.vin, "qtd": sum(1 for a in associacoes_filtradas if a.carro == assoc.carro)}
-            for assoc in associacoes_filtradas],
+            [{"vin": vin, "qtd": sum(1 for a in associacoes_filtradas if a.carro.documentacao.vin == vin)}
+            for vin in set(assoc.carro.documentacao.vin for assoc in associacoes_filtradas)],
             key=lambda x: x["qtd"], reverse=True
         )[:3]
 
         carros_por_reprovacao = sorted(
-            [{"vin": assoc.carro.documentacao.vin, 
-            "porcentagem": ((sum(1 for a in associacoes_filtradas if a.carro == assoc.carro and (a.inspecao.resultado == "reprovado" or a.inspecao.resultado == "pendente"))) / sum(1 for a in associacoes_filtradas if a.carro == assoc.carro)) * 100}
-            for assoc in associacoes_filtradas if sum(1 for a in associacoes_filtradas if a.carro == assoc.carro) > 0],
+            [{"vin": vin, 
+            "porcentagem": (sum(1 for a in associacoes_filtradas 
+                                if a.carro.documentacao.vin == vin 
+                                and a.inspecao.resultado in ["reprovado", "pendente"]) / 
+                            sum(1 for a in associacoes_filtradas if a.carro.documentacao.vin == vin)) * 100}
+            for vin in set(assoc.carro.documentacao.vin for assoc in associacoes_filtradas)],
             key=lambda x: x["porcentagem"], reverse=True
         )[:3]
 
         carros_por_aprovacao = sorted(
-            [{"vin": assoc.carro.documentacao.vin, 
-            "porcentagem": (sum(1 for a in associacoes_filtradas if a.carro == assoc.carro and a.inspecao.apto) / sum(1 for a in associacoes_filtradas if a.carro == assoc.carro)) * 100}
-            for assoc in associacoes_filtradas if sum(1 for a in associacoes_filtradas if a.carro == assoc.carro) > 0],
+            [{"vin": vin, 
+            "porcentagem": (sum(1 for a in associacoes_filtradas 
+                                if a.carro.documentacao.vin == vin and a.inspecao.apto) / 
+                            sum(1 for a in associacoes_filtradas if a.carro.documentacao.vin == vin)) * 100}
+            for vin in set(assoc.carro.documentacao.vin for assoc in associacoes_filtradas)],
             key=lambda x: x["porcentagem"], reverse=True
         )[:3]
 
