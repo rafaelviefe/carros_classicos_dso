@@ -7,33 +7,35 @@ from exception.inclusao_exception import InclusaoException
 from exception.exclusao_exception import ExclusaoException
 from exception.listagem_exception import ListagemException
 
+from DAOs.motor_dao import MotorDAO
+from DAOs.roda_dao import RodaDAO
+from DAOs.pintura_dao import PinturaDAO
+
 class ControladorPecas:
     def __init__(self, controlador_sistema):
-        self.__pecas = {
-            "motor": [],
-            "roda": [],
-            "pintura": []
-        }
+        self.__motor_DAO = MotorDAO()
+        self.__roda_DAO = RodaDAO()
+        self.__pintura_DAO = PinturaDAO()
         self.__tela_peca = TelaPeca()
         self.__controlador_sistema = controlador_sistema
 
     # Busca um motor específico pelo número do motor
     def pega_motor_por_num(self, num_motor: str):
-        for motor in self.__pecas["motor"]:
+        for motor in self.__motor_DAO.get_all():
             if motor.num_motor == num_motor:
                 return motor
         return None
 
     # Busca uma roda específica pelo número de série
     def pega_roda_por_num(self, num_serie: str):
-        for roda in self.__pecas["roda"]:
+        for roda in self.__roda_DAO.get_all():
             if roda.num_serie == num_serie:
                 return roda
         return None
 
     # Busca uma pintura específica pelo código de cor
     def pega_pintura_por_cod(self, codigo_cor: str):
-        for pintura in self.__pecas["pintura"]:
+        for pintura in self.__pintura_DAO.get_all():
             if pintura.codigo_cor == codigo_cor:
                 return pintura
         return None
@@ -48,7 +50,7 @@ class ControladorPecas:
                     if self.pega_motor_por_num(dados_motor["num_motor"]):
                         raise InclusaoException("Motor já cadastrado.")
                     motor = Motor(**dados_motor)
-                    self.__pecas["motor"].append(motor)
+                    self.__motor_DAO.add(motor)
                     self.__tela_peca.mostra_mensagem("Motor incluído com sucesso!")
 
                 elif tipo_peca == "roda":
@@ -56,7 +58,7 @@ class ControladorPecas:
                     if self.pega_roda_por_num(dados_roda["num_serie"]):
                         raise InclusaoException("Roda já cadastrada.")
                     roda = Roda(**dados_roda)
-                    self.__pecas["roda"].append(roda)
+                    self.__roda_DAO.add(roda)
                     self.__tela_peca.mostra_mensagem("Roda incluída com sucesso!")
 
                 elif tipo_peca == "pintura":
@@ -64,7 +66,7 @@ class ControladorPecas:
                     if self.pega_pintura_por_cod(dados_pintura["codigo_cor"]):
                         raise InclusaoException("Pintura já cadastrada.")
                     pintura = Pintura(**dados_pintura)
-                    self.__pecas["pintura"].append(pintura)
+                    self.__pintura_DAO.add(pintura)
                     self.__tela_peca.mostra_mensagem("Pintura incluída com sucesso!")
 
             except TypeError as e:
@@ -80,10 +82,11 @@ class ControladorPecas:
             lista_pecas = []
 
             if tipo_peca == "motor":
-                if not self.__pecas["motor"]:
+                motores = self.__motor_DAO.get_all()
+                if not motores:
                     raise ListagemException("Nenhum motor cadastrado.")
                 tipo_plural = "motores"
-                for motor in self.__pecas["motor"]:
+                for motor in motores:
                     lista_pecas.append({
                         "Núm - Motor": motor.num_motor,
                         "Potência": motor.potencia,
@@ -94,10 +97,11 @@ class ControladorPecas:
                     })
 
             elif tipo_peca == "roda":
-                if not self.__pecas["roda"]:
+                rodas = self.__roda_DAO.get_all()
+                if not rodas:
                     raise ListagemException("Nenhuma roda cadastrada.")
                 tipo_plural = "rodas"
-                for roda in self.__pecas["roda"]:
+                for roda in rodas:
                     lista_pecas.append({
                         "Núm - Série": roda.num_serie,
                         "Largura": roda.largura,
@@ -109,10 +113,11 @@ class ControladorPecas:
                     })
 
             elif tipo_peca == "pintura":
-                if not self.__pecas["pintura"]:
+                pinturas = self.__pintura_DAO.get_all()
+                if not pinturas:
                     raise ListagemException("Nenhuma pintura cadastrada.")
                 tipo_plural = "pinturas"
-                for pintura in self.__pecas["pintura"]:
+                for pintura in pinturas:
                     lista_pecas.append({
                         "Código da Cor": pintura.codigo_cor,
                         "Cor": pintura.cor,
@@ -135,7 +140,7 @@ class ControladorPecas:
                     raise ExclusaoException("Motor está em uso em um carro. Não pode ser excluído.")
                 if not motor:
                     raise ExclusaoException("Motor não encontrado.")
-                self.__pecas["motor"].remove(motor)
+                self.__motor_DAO.remove(motor.num_motor)
                 self.__tela_peca.mostra_mensagem("Motor excluído com sucesso!")
 
             elif tipo_peca == "roda":
@@ -144,7 +149,7 @@ class ControladorPecas:
                     raise ExclusaoException("Roda está em uso em um carro. Não pode ser excluída.")
                 if not roda:
                     raise ExclusaoException("Roda não encontrada.")
-                self.__pecas["roda"].remove(roda)
+                self.__roda_DAO.remove(roda.num_serie)
                 self.__tela_peca.mostra_mensagem("Roda excluída com sucesso!")
 
             elif tipo_peca == "pintura":
@@ -153,7 +158,7 @@ class ControladorPecas:
                     raise ExclusaoException("Pintura está em uso em um carro. Não pode ser excluída.")
                 if not pintura:
                     raise ExclusaoException("Pintura não encontrada.")
-                self.__pecas["pintura"].remove(pintura)
+                self.__pintura_DAO.remove(pintura.codigo_cor)
                 self.__tela_peca.mostra_mensagem("Pintura excluída com sucesso!")
 
         except ExclusaoException as e:
