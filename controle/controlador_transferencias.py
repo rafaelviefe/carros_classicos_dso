@@ -20,7 +20,7 @@ class ControladorTransferencias:
     # Verifica a última transferência de um carro
     def ultima_transferencia(self, vin):
         transferencias_carro = [
-            transf for transf in self.__transferencias if transf.carro_vin == vin
+            transf for transf in self.__transferencias if transf.ref_carro.documentacao.vin == vin
         ]
         return transferencias_carro[-1] if transferencias_carro else None
 
@@ -28,53 +28,60 @@ class ControladorTransferencias:
     def inclui_transferencia(self):
         try:
             dados_transferencia = self.__tela_transferencia.pega_dados_transferencia()
-            vin = dados_transferencia["carro_vin"]
+            vin = dados_transferencia["vin_carro"]
             tipo = dados_transferencia["tipo"]
-            comprador_vendedor_doc = dados_transferencia["documento"]
+            cpf_cnpj = dados_transferencia["documento_pessoa"]
 
             carro = self.__controlador_sistema.controlador_carros_classicos.pega_carro_por_vin(vin)
+            pessoa = self.__controlador_sistema.controlador_pessoas.pega_pessoa_por_doc(cpf_cnpj)
             if not carro:
                 raise InclusaoException("Carro não encontrado.")
+            if not pessoa:
+                raise InclusaoException("Pessoa não encontrada")
 
             ultima_transf = self.ultima_transferencia(vin)
 
             if tipo == "compra":
+                if not ultima_transf:
+                    raise InclusaoException("Esse carro ainda não foi vendido.")
+
                 if ultima_transf and ultima_transf.tipo == "compra":
                     raise InclusaoException("Este carro já foi comprado e não pode ser comprado novamente.")
+                
+                if ultima_transf and ultima_transf.tipo == "venda":
+                    vendedor_doc = ultima_transf.ref_pessoa.documento
+                    if vendedor_doc != cpf_cnpj:
+                        raise InclusaoException("O vendedor informado não possui este carro.")
                 
                 aprovado = self.__controlador_sistema.controlador_assoc_carro_inspecao.inclui_inspecao(vin, carro)
                 if not aprovado:
                     raise InclusaoException("O carro não passou na inspeção e não pode ser comprado.")
-                
-                if ultima_transf and ultima_transf.tipo == "venda":
-                    vendedor_doc = ultima_transf.documento
-                    if vendedor_doc != comprador_vendedor_doc:
-                        raise InclusaoException("O vendedor informado não possui este carro.")
 
             elif tipo == "venda":
-                if not ultima_transf or ultima_transf.tipo == "venda":
+                if ultima_transf and ultima_transf.tipo == "venda":
                     raise InclusaoException("Este carro não está disponível para venda.")
                 
             id_transferencia = self.gera_id()
             transferencia = Transferencia(
                 id=id_transferencia,
-                documento_pessoa=comprador_vendedor_doc,
-                carro_vin=vin,
+                ref_pessoa=pessoa,
+                ref_carro=carro,
                 tipo=tipo,
                 valor=dados_transferencia["valor"]
             )
             self.__transferencias.append(transferencia)
             self.__tela_transferencia.mostra_mensagem("Transferência registrada com sucesso!")
-            self.lista_transferencias()
 
         except InclusaoException as e:
             self.__tela_transferencia.mostra_mensagem(f"ATENÇÃO: {str(e)}")
 
-    def lista_transferencias(self):
-        vin = self.__tela_transferencia.pega_vin()
+    def lista_transferencias(self, vin = None):
+
+        if not vin:
+            vin = self.__tela_transferencia.pega_vin()
 
         try:
-            transferencias_filtradas = [trans for trans in self.__transferencias if trans.vin_carro == vin]
+            transferencias_filtradas = [trans for trans in self.__transferencias if trans.ref_carro.documentacao.vin == vin]
 
             if not transferencias_filtradas:
                 raise ListagemException(f"Nenhuma transferência encontrada para o VIN {vin}.")
@@ -82,8 +89,8 @@ class ControladorTransferencias:
             for trans in transferencias_filtradas:
                 atributos = {
                     "id": trans.id,
-                    "documento_pessoa": trans.documento_pessoa,
-                    "vin_carro": trans.documento_pessoa,
+                    "documento_pessoa": trans.ref_pessoa.documento,
+                    "vin_carro": trans.ref_carro.documentacao.vin,
                     "tipo": trans.tipo,
                     "valor": trans.valor
                 }
@@ -107,8 +114,6 @@ class ControladorTransferencias:
                 raise AlteracaoException("Transferência com o ID fornecido não encontrada.")
 
             novos_dados = self.__tela_transferencia.pega_alteracoes_transferencia()
-            transferencia.documento_pessoa = novos_dados["documento_pessoa"]
-            transferencia.vin_carro = novos_dados["vin_carro"]
             transferencia.valor = novos_dados["valor"]
 
             self.__tela_transferencia.mostra_mensagem("Transferência alterada com sucesso!")
