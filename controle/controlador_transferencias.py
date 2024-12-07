@@ -123,31 +123,30 @@ class ControladorTransferencias:
 
     def exclui_transferencia(self):
         try:
-            transferencias = self.lista_transferencias()
-            if not transferencias:
-                return
+            
+            vin = self.__tela_transferencia.pega_vin()
 
-            id_selecionado = self.__tela_transferencia.pega_id()
-            transferencia = next((trans for trans in transferencias if trans.id == id_selecionado), None)
+            self.lista_transferencias(vin)
+            ultima_transf = self.ultima_transferencia(vin)
 
-            if not transferencia:
-                raise ExclusaoException("Transferência com o ID fornecido não encontrada.")
+            if not ultima_transf:
+                raise ExclusaoException(f"Nenhuma transferência encontrada para o VIN {vin}.")
 
-            self.__transferencias.remove(transferencia)
-            self.__tela_transferencia.mostra_mensagem("Transferência excluída com sucesso!")
+            self.__transferencias.remove(ultima_transf)
+            self.__tela_transferencia.mostra_mensagem("Última transferência excluída com sucesso!")
 
-        except (ExclusaoException, ListagemException) as e:
+        except ExclusaoException as e:
             self.__tela_transferencia.mostra_mensagem(str(e))
 
     def pega_carros_por_documento(self, documento: str):
         carros = []
         verificados = []
         for transferencia in reversed(self.__transferencias):
-            vin = transferencia.vin_carro
+            vin = transferencia.ref_carro.documentacao.vin
             if vin not in verificados:
                 verificados.append(vin)
-                if transferencia.tipo == "venda" and transferencia.documento_pessoa == documento:
-                    carro = self.__controlador_sistema.controlador_carros_classicos.pega_carro_por_vin(transferencia.vin_carro)
+                if transferencia.tipo == "venda" and transferencia.ref_pessoa.documento == documento:
+                    carro = self.__controlador_sistema.controlador_carros_classicos.pega_carro_por_vin(vin)
                     if carro and carro not in carros:
                         carros.append(carro)
         return carros
@@ -164,4 +163,4 @@ class ControladorTransferencias:
         
         continua = True
         while continua:
-            lista_opcoes[self.__tela_associacao.tela_opcoes()]()
+            lista_opcoes[self.__tela_transferencia.tela_opcoes()]()

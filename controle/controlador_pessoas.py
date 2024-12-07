@@ -77,7 +77,7 @@ class ControladorPessoas():
             "modelo": carro.documentacao.modelo,
             "ano": carro.documentacao.ano,
           }
-        self.__tela_pessoa.mostra_carro(dados_carro)
+          self.__tela_pessoa.mostra_carro(dados_carro)
 
     except ListagemException as e:
         self.__tela_pessoa.mostra_erro(str(e))
