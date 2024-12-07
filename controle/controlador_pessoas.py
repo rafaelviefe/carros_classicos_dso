@@ -7,16 +7,18 @@ from exception.exclusao_exception import ExclusaoException
 from exception.listagem_exception import ListagemException
 from exception.alteracao_exception import AlteracaoException
 
+from DAOs.pessoa_dao import PessoaDAO
+
 class ControladorPessoas():
 
   def __init__(self, controlador_sistema):
-    self.__pessoas = []
+    self.__pessoa_DAO = PessoaDAO()
     self.__tela_pessoa = TelaPessoa()
     self.__controlador_sistema = controlador_sistema
 
   # Busca uma pessoa na lista pelo documento fornecido
   def pega_pessoa_por_doc(self, documento: str):
-    for pessoa in self.__pessoas:
+    for pessoa in self.__pessoa_DAO.get_all():
       if pessoa.documento == documento:
         return pessoa
     return None
@@ -26,7 +28,7 @@ class ControladorPessoas():
       try:
           dados_pessoa = self.__tela_pessoa.pega_dados_pessoa()
 
-          if any(pessoa.documento == dados_pessoa["documento"] for pessoa in self.__pessoas):
+          if any(pessoa.documento == dados_pessoa["documento"] for pessoa in self.__pessoa_DAO.get_all()):
               raise InclusaoException("Uma pessoa com este documento já foi registrada.")
           
           if len(dados_pessoa["documento"]) == 11:
@@ -34,7 +36,7 @@ class ControladorPessoas():
           else:
               pessoa = PessoaJuridica(dados_pessoa["nome"], dados_pessoa["documento"])
 
-          self.__pessoas.append(pessoa)
+          self.__pessoa_DAO.add(pessoa)
           self.lista_pessoas()
 
       except InclusaoException as e:
@@ -52,6 +54,8 @@ class ControladorPessoas():
         
         novo_nome = self.__tela_pessoa.pega_novo_nome()
         pessoa.nome = novo_nome
+
+        self.__pessoa_DAO.update(pessoa)
         self.lista_pessoas()
 
     except AlteracaoException as e:
@@ -59,11 +63,13 @@ class ControladorPessoas():
 
   # Exibe uma lista de todas as pessoas registradas
   def lista_pessoas(self):
+    pessoas = self.__pessoa_DAO.get_all()
+
     try:
-      if not self.__pessoas:
+      if not pessoas:
             raise ListagemException("A lista de pessoas está vazia.")
 
-      for pessoa in self.__pessoas:
+      for pessoa in pessoas:
         dados_pessoa = {
           "nome": pessoa.nome,
           "documento": pessoa.documento,
@@ -80,7 +86,7 @@ class ControladorPessoas():
           self.__tela_pessoa.mostra_carro(dados_carro)
 
     except ListagemException as e:
-        self.__tela_pessoa.mostra_erro(str(e))
+        self.__tela_pessoa.mostra_mensagem(f"ATENÇÃO: {str(e)}")
 
   # Remove uma pessoa da lista após selecioná-la pelo documento
   def exclui_pessoa(self):
@@ -92,7 +98,7 @@ class ControladorPessoas():
           if pessoa is None:
               raise ExclusaoException("Pessoa não existente.")
 
-          self.__pessoas.remove(pessoa)
+          self.__pessoa_DAO.remove(pessoa.documento)
           self.lista_pessoas()
 
       except ExclusaoException as e:

@@ -4,7 +4,6 @@ from limite.tela_assoc_carro_inpecao import TelaAssocCarroInspecao
 from exception.inclusao_exception import InclusaoException
 from exception.exclusao_exception import ExclusaoException
 from exception.listagem_exception import ListagemException
-from exception.alteracao_exception import AlteracaoException
 
 class ControladorAssocCarroInspecao:
     def __init__(self, controlador_sistema):

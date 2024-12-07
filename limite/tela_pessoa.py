@@ -101,3 +101,6 @@ class TelaPessoa:
             documento = input("Documento do cliente que deseja selecionar: ").strip()
 
         return documento
+    
+    def mostra_mensagem(self, msg):
+        print(msg)
