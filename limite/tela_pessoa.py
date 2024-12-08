@@ -82,17 +82,17 @@ class TelaPessoa:
             novo_nome = input("Novo nome: ").strip()
         return novo_nome
 
-    def mostra_pessoa(self, dados_pessoa):
-        print()
-        print("Nome do cliente:", dados_pessoa["nome"])
-        print("Documento do cliente:", dados_pessoa["documento"])
-        print()
-
-    def mostra_carro(self, dados_carro):
-        print("  Vin:", dados_carro["vin"])
-        print("  Modelo:", dados_carro["modelo"])
-        print("  Ano:", dados_carro["ano"])
-        print()
+    def mostra_pessoas(self, lista_pessoas):
+        print("\nPESSOAS CADASTRADAS: \n")
+        for pessoa in lista_pessoas:
+            print(f"Nome: {pessoa['nome']}")
+            print(f"Documento: {pessoa['documento']} \n")
+            if pessoa["carros"]:
+                print("Carros:")
+                for carro in pessoa["carros"]:
+                    print(f"  VIN: {carro['vin']}")
+                    print(f"  Modelo: {carro['modelo']}")
+                    print(f"  Ano: {carro['ano']} \n")
 
     def seleciona_pessoa(self):
         documento = input("Documento do cliente que deseja selecionar: ").strip()

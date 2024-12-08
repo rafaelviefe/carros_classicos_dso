@@ -63,30 +63,33 @@ class ControladorPessoas():
 
   # Exibe uma lista de todas as pessoas registradas
   def lista_pessoas(self):
-    pessoas = self.__pessoa_DAO.get_all()
+      pessoas = self.__pessoa_DAO.get_all()
 
-    try:
-      if not pessoas:
-            raise ListagemException("A lista de pessoas está vazia.")
+      try:
+          if not pessoas:
+              raise ListagemException("A lista de pessoas está vazia.")
 
-      for pessoa in pessoas:
-        dados_pessoa = {
-          "nome": pessoa.nome,
-          "documento": pessoa.documento,
-        }
-        self.__tela_pessoa.mostra_pessoa(dados_pessoa)
+          lista_pessoas_com_carros = []
+          for pessoa in pessoas:
+              carros = self.__controlador_sistema.controlador_transferencias.pega_carros_por_documento(pessoa.documento)
+              lista_carros = [
+                  {
+                      "vin": carro.documentacao.vin,
+                      "modelo": carro.documentacao.modelo,
+                      "ano": carro.documentacao.ano,
+                  }
+                  for carro in carros
+              ]
+              lista_pessoas_com_carros.append({
+                  "nome": pessoa.nome,
+                  "documento": pessoa.documento,
+                  "carros": lista_carros,
+              })
 
-        carros = self.__controlador_sistema.controlador_transferencias.pega_carros_por_documento(pessoa.documento)
-        for carro in carros:
-          dados_carro = {
-            "vin": carro.documentacao.vin,
-            "modelo": carro.documentacao.modelo,
-            "ano": carro.documentacao.ano,
-          }
-          self.__tela_pessoa.mostra_carro(dados_carro)
+          self.__tela_pessoa.mostra_pessoas(lista_pessoas_com_carros)
 
-    except ListagemException as e:
-        self.__tela_pessoa.mostra_mensagem(f"ATENÇÃO: {str(e)}")
+      except ListagemException as e:
+          self.__tela_pessoa.mostra_mensagem(f"ATENÇÃO: {str(e)}")
 
   # Remove uma pessoa da lista após selecioná-la pelo documento
   def exclui_pessoa(self):
