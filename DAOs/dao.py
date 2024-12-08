@@ -31,20 +31,20 @@ class DAO(ABC):
                 self.__cache[key] = obj
                 self.__dump()
         except KeyError:
-            raise AlteracaoException("Erro ao atualizar objeto na memória.")
+            raise AlteracaoException("Erro ao atualizar objeto.")
 
     def get(self, key):
         try:
             return self.__cache[key]
         except KeyError:
-            raise ListagemException("Erro ao buscar objeto na memória.")
+            raise ListagemException("Objeto não encontrado na memória.")
 
     def remove(self, key):
         try:
             self.__cache.pop(key)
             self.__dump()
         except KeyError:
-            raise ExclusaoException("Erro ao deletar objeto da memória.")
+            raise ExclusaoException("Erro ao deletar objeto.")
 
     def get_all(self):
         return self.__cache.values()
