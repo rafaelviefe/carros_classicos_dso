@@ -123,13 +123,14 @@ class TelaCarroClassico:
             vin = input("VIN do carro que deseja selecionar: ").strip()
         return vin
 
-    def mostra_carro(self, dados_carro):
+    def mostra_lista_carros(self, lista_carros):
         print()
-        print("VIN:", dados_carro["vin"])
-        print("Modelo:", dados_carro["modelo"])
-        print("Ano:", dados_carro["ano"])
-        print("Unidades Existentes:", dados_carro["unidades_existentes"])
-        print()
+        print("CARROS CLÁSSICOS: \n")
+        for dados_carro in lista_carros:
+            print(f"VIN: {dados_carro['vin']}")
+            print(f"Modelo: {dados_carro['modelo']}")
+            print(f"Ano: {dados_carro['ano']}")
+            print(f"Unidades Existentes: {dados_carro['unidades_existentes']} \n")
 
     def mostra_mensagem(self, msg):
         print(msg)

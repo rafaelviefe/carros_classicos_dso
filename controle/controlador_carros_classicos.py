@@ -130,20 +130,24 @@ class ControladorCarrosClassicos:
             self.__tela_carro_classico.mostra_mensagem(f"ATENÇÃO: {e}")
 
     # Exibe todos os carros cadastrados, mostrando VIN, modelo, ano e unidades existentes.
-    def lista_carros(self): 
+    def lista_carros(self):
         try:
             carros = self.__carro_classico_DAO.get_all()
 
             if not carros:
                 raise ListagemException("A lista de carros está vazia.")
             
-            for carro in carros:
-                self.__tela_carro_classico.mostra_carro({
+            lista_carros = [
+                {
                     "vin": carro.documentacao.vin,
                     "modelo": carro.documentacao.modelo,
                     "ano": carro.documentacao.ano,
                     "unidades_existentes": carro.unidades_existentes
-                })
+                }
+                for carro in carros
+            ]
+            
+            self.__tela_carro_classico.mostra_lista_carros(lista_carros)
         
         except ListagemException as e:
             self.__tela_carro_classico.mostra_mensagem(str(e))
