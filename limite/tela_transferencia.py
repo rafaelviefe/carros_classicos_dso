@@ -91,14 +91,14 @@ class TelaTransferencia:
                 print("Entrada inválida! Por favor, insira um número inteiro.")
         return id_transferencia
 
-    def mostra_transferencia(self, transferencia):
-        print("\nDados da Transferência:")
-        print(f"ID: {transferencia['id']}")
-        print(f"VIN do carro: {transferencia['vin_carro']}")
-        print(f"Tipo: {transferencia['tipo'].capitalize()}")
-        print(f"Documento: {transferencia['documento_pessoa']}")
-        print(f"Valor: R$ {transferencia['valor']:.2f}")
-        print()
+    def mostra_transferencias(self, transferencias):
+        print("\nLista de Transferências: \n")
+        for transf in transferencias:
+            print(f"ID: {transf['id']}")
+            print(f"VIN do carro: {transf['vin_carro']}")
+            print(f"Tipo: {transf['tipo'].capitalize()}")
+            print(f"Documento da pessoa: {transf['documento_pessoa']}")
+            print(f"Valor: R$ {transf['valor']:.2f} \n")
 
     def mostra_mensagem(self, msg):
         print(msg)

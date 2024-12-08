@@ -83,27 +83,27 @@ class ControladorTransferencias:
 
         except InclusaoException as e:
             self.__tela_transferencia.mostra_mensagem(f"ATENÇÃO: {str(e)}")
-
-    def lista_transferencias(self, vin = None):
-
+    
+    def lista_transferencias(self, vin=None):
         if not vin:
             vin = self.__tela_transferencia.pega_vin()
 
         try:
-            transferencias_filtradas = [trans for trans in self.__transferencia_DAO.get_all() if trans.carro.documentacao.vin == vin]
-
-            if not transferencias_filtradas:
-                raise ListagemException(f"Nenhuma transferência encontrada para o VIN {vin}.")
-
-            for trans in transferencias_filtradas:
-                atributos = {
+            transferencias_filtradas = [
+                {
                     "id": trans.id,
                     "documento_pessoa": trans.pessoa.documento,
                     "vin_carro": trans.carro.documentacao.vin,
                     "tipo": trans.tipo,
                     "valor": trans.valor
                 }
-                self.__tela_transferencia.mostra_transferencia(atributos)
+                for trans in self.__transferencia_DAO.get_all() if trans.carro.documentacao.vin == vin
+            ]
+
+            if not transferencias_filtradas:
+                raise ListagemException(f"Nenhuma transferência encontrada para o VIN {vin}.")
+
+            self.__tela_transferencia.mostra_transferencias(transferencias_filtradas)
 
             return transferencias_filtradas
 
