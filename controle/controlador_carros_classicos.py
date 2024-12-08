@@ -92,7 +92,7 @@ class ControladorCarrosClassicos:
             carro.quilometragem = novos_dados_carro["quilometragem"]
             carro.unidades_existentes = novos_dados_carro["unidades_existentes"]
 
-            self.__carro_classico_DAO.update(carro.documentacao.vin)
+            self.__carro_classico_DAO.update(carro)
             self.lista_carros()
 
         except AlteracaoException as e:
@@ -119,7 +119,7 @@ class ControladorCarrosClassicos:
             carro.roda = roda
             carro.pintura = pintura
 
-            self.__carro_classico_DAO.update(carro.documentacao.vin)
+            self.__carro_classico_DAO.update(carro)
             self.__tela_carro_classico.mostra_mensagem("Peças trocadas com sucesso!")
             self.lista_carros()
 

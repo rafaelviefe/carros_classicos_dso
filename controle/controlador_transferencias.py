@@ -6,21 +6,30 @@ from exception.exclusao_exception import ExclusaoException
 from exception.listagem_exception import ListagemException
 from exception.alteracao_exception import AlteracaoException
 
+from DAOs.transferencia_dao import TransferenciaDAO
+
 class ControladorTransferencias:
     def __init__(self, controlador_sistema):
-        self.__transferencias = []
+        self.__transferencia_DAO = TransferenciaDAO()
         self.__tela_transferencia = TelaTransferencia()
         self.__controlador_sistema = controlador_sistema
         self.__id_transferencia = 0
 
     def gera_id(self):
-        self.__id_transferencia += 1
+        transferencias = self.__transferencia_DAO.get_all()
+
+        if transferencias:
+            ultimo_id = next(reversed(transferencias)).id
+        else:
+            ultimo_id = 0
+
+        self.__id_transferencia = ultimo_id + 1
         return self.__id_transferencia
 
     # Verifica a última transferência de um carro
     def ultima_transferencia(self, vin):
         transferencias_carro = [
-            transf for transf in self.__transferencias if transf.carro.documentacao.vin == vin
+            transf for transf in self.__transferencia_DAO.get_all() if transf.carro.documentacao.vin == vin
         ]
         return transferencias_carro[-1] if transferencias_carro else None
 
@@ -46,7 +55,7 @@ class ControladorTransferencias:
                     raise InclusaoException("Esse carro ainda não foi vendido.")
 
                 if ultima_transf and ultima_transf.tipo == "compra":
-                    raise InclusaoException("Este carro já foi comprado e não pode ser comprado novamente.")
+                    raise InclusaoException("Este carro já é da concessionára.")
                 
                 if ultima_transf and ultima_transf.tipo == "venda":
                     vendedor_doc = ultima_transf.pessoa.documento
@@ -59,8 +68,8 @@ class ControladorTransferencias:
 
             elif tipo == "venda":
                 if ultima_transf and ultima_transf.tipo == "venda":
-                    raise InclusaoException("Este carro não está disponível para venda.")
-                
+                    raise InclusaoException("Este carro já está vendido.")
+            
             id_transferencia = self.gera_id()
             transferencia = Transferencia(
                 id=id_transferencia,
@@ -69,7 +78,7 @@ class ControladorTransferencias:
                 tipo=tipo,
                 valor=dados_transferencia["valor"]
             )
-            self.__transferencias.append(transferencia)
+            self.__transferencia_DAO.add(transferencia)
             self.__tela_transferencia.mostra_mensagem("Transferência registrada com sucesso!")
 
         except InclusaoException as e:
@@ -81,7 +90,7 @@ class ControladorTransferencias:
             vin = self.__tela_transferencia.pega_vin()
 
         try:
-            transferencias_filtradas = [trans for trans in self.__transferencias if trans.carro.documentacao.vin == vin]
+            transferencias_filtradas = [trans for trans in self.__transferencia_DAO.get_all() if trans.carro.documentacao.vin == vin]
 
             if not transferencias_filtradas:
                 raise ListagemException(f"Nenhuma transferência encontrada para o VIN {vin}.")
@@ -116,6 +125,7 @@ class ControladorTransferencias:
             novos_dados = self.__tela_transferencia.pega_alteracoes_transferencia()
             transferencia.valor = novos_dados["valor"]
 
+            self.__transferencia_DAO.update(transferencia)
             self.__tela_transferencia.mostra_mensagem("Transferência alterada com sucesso!")
 
         except (AlteracaoException, ListagemException) as e:
@@ -123,7 +133,6 @@ class ControladorTransferencias:
 
     def exclui_transferencia(self):
         try:
-            
             vin = self.__tela_transferencia.pega_vin()
 
             self.lista_transferencias(vin)
@@ -132,7 +141,7 @@ class ControladorTransferencias:
             if not ultima_transf:
                 raise ExclusaoException(f"Nenhuma transferência encontrada para o VIN {vin}.")
 
-            self.__transferencias.remove(ultima_transf)
+            self.__transferencia_DAO.remove(ultima_transf.id)
             self.__tela_transferencia.mostra_mensagem("Última transferência excluída com sucesso!")
 
         except ExclusaoException as e:
@@ -141,7 +150,7 @@ class ControladorTransferencias:
     def pega_carros_por_documento(self, documento: str):
         carros = []
         verificados = []
-        for transferencia in reversed(self.__transferencias):
+        for transferencia in reversed(self.__transferencia_DAO.get_all()):
             vin = transferencia.carro.documentacao.vin
             if vin not in verificados:
                 verificados.append(vin)

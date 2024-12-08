@@ -153,7 +153,6 @@ class ControladorAssocCarroInspecao:
         return [vin, carro]
 
     def gera_id(self):
-
         assocs = self.__assoc_carro_inspecao_DAO.get_all()
 
         if assocs:
