@@ -105,16 +105,15 @@ class ControladorTransferencias:
 
             self.__tela_transferencia.mostra_transferencias(transferencias_filtradas)
 
-            return transferencias_filtradas
-
         except ListagemException as e:
             self.__tela_transferencia.mostra_mensagem(str(e))
 
     def altera_transferencia(self):
         try:
-            transferencias = self.lista_transferencias()
+            transferencias = self.__transferencia_DAO.get_all()
+
             if not transferencias:
-                return
+                raise AlteracaoException("Não há transferências registradas.")
 
             id_selecionado = self.__tela_transferencia.pega_id()
             transferencia = next((trans for trans in transferencias if trans.id == id_selecionado), None)
@@ -135,7 +134,6 @@ class ControladorTransferencias:
         try:
             vin = self.__tela_transferencia.pega_vin()
 
-            self.lista_transferencias(vin)
             ultima_transf = self.ultima_transferencia(vin)
 
             if not ultima_transf:
