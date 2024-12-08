@@ -62,11 +62,10 @@ class TelaAssocCarroInspecao:
             "pintura": codigo_cor
         }
 
-    def mostra_inspecao(self, assoc):
-        print()
-        print("Número de ID:", assoc["id"])
-        print("Apto:", "Sim" if assoc["apto"] else "Não")
-        print("Resultado:", assoc["resultado"].capitalize())
+    def mostra_inspecoes(self, lista_inspecoes):
+        print("\nINSPEÇÕES ENCONTRADAS: \n")
+        for inspecao in lista_inspecoes:
+            print(f"ID: {inspecao['id']} \nApto: {'Sim' if inspecao['apto'] else 'Não'} \nResultado: {inspecao['resultado'].capitalize()} \n")
         print()
 
     def mostra_inconstancias(self, pecas_diferentes):

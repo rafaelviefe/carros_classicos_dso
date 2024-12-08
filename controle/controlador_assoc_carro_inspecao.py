@@ -104,22 +104,25 @@ class ControladorAssocCarroInspecao:
     def lista_inspecoes(self):
         vin = self.valida_vin()[0]
         try:
-            
             inspecoes = self.busca_inspecoes_por_vin(vin)
             if not inspecoes:
                 raise ListagemException(f"Nenhuma inspeção encontrada para o VIN {vin}.")
-            
-            for assoc in inspecoes:
-                atributos = {
+
+            lista_atributos = [
+                {
                     "id": assoc.id,
                     "apto": assoc.inspecao.apto,
                     "resultado": assoc.inspecao.resultado
                 }
-                self.__tela_associacao.mostra_inspecao(atributos)  
+                for assoc in inspecoes
+            ]
+
+            self.__tela_associacao.mostra_inspecoes(lista_atributos)
             return inspecoes
-        
+
         except ListagemException as e:
             self.__tela_associacao.mostra_mensagem(str(e))
+
 
     # Exclui uma inspeção específica após listar e selecionar pelo ID.
     def exclui_inspecao(self):
