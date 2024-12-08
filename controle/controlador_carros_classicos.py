@@ -68,7 +68,7 @@ class ControladorCarrosClassicos:
             )
             
             self.__carro_classico_DAO.add(carro)
-            self.lista_carros()
+            self.__tela_carro_classico.mostra_mensagem('Carro incluido com sucesso!')
         
         except InclusaoException as e:
             self.__tela_carro_classico.mostra_mensagem(f"ATENÇÃO: {e}")
@@ -79,7 +79,6 @@ class ControladorCarrosClassicos:
     # Modifica os dados de um carro existente na lista.
     def altera_carro(self):
         try:
-            self.lista_carros()
             vin_carro = self.__tela_carro_classico.seleciona_carro()
             carro = self.pega_carro_por_vin(vin_carro)
 
@@ -93,7 +92,7 @@ class ControladorCarrosClassicos:
             carro.unidades_existentes = novos_dados_carro["unidades_existentes"]
 
             self.__carro_classico_DAO.update(carro)
-            self.lista_carros()
+            self.__tela_carro_classico.mostra_mensagem('Carro alterado com sucesso!')
 
         except AlteracaoException as e:
             self.__tela_carro_classico.mostra_mensagem(f"ATENÇÃO: {e}")
@@ -121,7 +120,6 @@ class ControladorCarrosClassicos:
 
             self.__carro_classico_DAO.update(carro)
             self.__tela_carro_classico.mostra_mensagem("Peças trocadas com sucesso!")
-            self.lista_carros()
 
         except InclusaoException as e:
             self.__tela_carro_classico.mostra_mensagem(f"ATENÇÃO: {e}")
@@ -164,7 +162,6 @@ class ControladorCarrosClassicos:
             
             self.__carro_classico_DAO.remove(carro.documentacao.vin)
             self.__tela_carro_classico.mostra_mensagem("Carro removido com sucesso!")
-            self.lista_carros()
             
         except ExclusaoException as e:
             self.__tela_carro_classico.mostra_mensagem(str(e))
