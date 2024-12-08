@@ -155,7 +155,11 @@ class ControladorAssocCarroInspecao:
     def gera_id(self):
 
         assocs = self.__assoc_carro_inspecao_DAO.get_all()
-        ultimo_id = next(reversed(assocs)).id
+
+        if assocs:
+            ultimo_id = next(reversed(assocs)).id
+        else:
+            ultimo_id = 0
 
         self.__id_inspecao = ultimo_id + 1
         return self.__id_inspecao
