@@ -71,7 +71,7 @@ class ControladorAssocCarroInspecao:
     def busca_inspecoes_por_vin(self, vin):
         return [assoc for assoc in self.__assoc_carro_inspecao_DAO.get_all() if assoc.carro.documentacao.vin == vin]
  
-     # Verifica o status de elegibilidade de inspeções anteriores de um veículo, permitindo ou não uma nova inspeção.
+    # Verifica o status de elegibilidade de inspeções anteriores de um veículo, permitindo ou não uma nova inspeção.
     def obtem_status_inspecao(self, vin):
         cont_inapto = 0
         inspecoes_encontradas = self.busca_inspecoes_por_vin(vin)[-3:]
@@ -123,11 +123,11 @@ class ControladorAssocCarroInspecao:
         except ListagemException as e:
             self.__tela_associacao.mostra_mensagem(str(e))
 
-
     # Exclui uma inspeção específica após listar e selecionar pelo ID.
     def exclui_inspecao(self):
+        vin = self.valida_vin()[0]
         try:
-            inspecoes = self.lista_inspecoes()
+            inspecoes = self.busca_inspecoes_por_vin(vin)
             if not inspecoes:
                 return
 
