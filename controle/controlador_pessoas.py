@@ -37,7 +37,7 @@ class ControladorPessoas():
               pessoa = PessoaJuridica(dados_pessoa["nome"], dados_pessoa["documento"])
 
           self.__pessoa_DAO.add(pessoa)
-          self.lista_pessoas()
+          self.__tela_pessoa.mostra_mensagem("Cliente adicionado com sucesso!")
 
       except InclusaoException as e:
           self.__tela_pessoa.mostra_mensagem(f"ATENÇÃO: {str(e)}")
@@ -45,7 +45,6 @@ class ControladorPessoas():
   # Permite alterar o nome de uma pessoa após selecioná-la pelo documento
   def altera_pessoa(self):
     try:
-        self.lista_pessoas()
         doc_pessoa = self.__tela_pessoa.seleciona_pessoa()
         pessoa = self.pega_pessoa_por_doc(doc_pessoa)
 
@@ -56,7 +55,7 @@ class ControladorPessoas():
         pessoa.nome = novo_nome
 
         self.__pessoa_DAO.update(pessoa)
-        self.lista_pessoas()
+        self.__tela_pessoa.mostra_mensagem("Cliente alterado com sucesso!")
 
     except AlteracaoException as e:
         self.__tela_pessoa.mostra_mensagem(f"ATENÇÃO: {str(e)}")
@@ -94,7 +93,6 @@ class ControladorPessoas():
   # Remove uma pessoa da lista após selecioná-la pelo documento
   def exclui_pessoa(self):
       try:
-          self.lista_pessoas()
           doc_pessoa = self.__tela_pessoa.seleciona_pessoa()
           pessoa = self.pega_pessoa_por_doc(doc_pessoa)
 
@@ -102,7 +100,7 @@ class ControladorPessoas():
               raise ExclusaoException("Pessoa não existente.")
 
           self.__pessoa_DAO.remove(pessoa.documento)
-          self.lista_pessoas()
+          self.__tela_pessoa.mostra_mensagem("Cliente excluido com sucesso.")
 
       except ExclusaoException as e:
           self.__tela_pessoa.mostra_mensagem(f"ATENÇÃO: {str(e)}")

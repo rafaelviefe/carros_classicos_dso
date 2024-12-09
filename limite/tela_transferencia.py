@@ -202,7 +202,6 @@ class TelaTransferencia:
                 break
         window.close()
 
-
     def mostra_mensagem(self, msg):
         sg.theme('BlueMono')
         layout = [
