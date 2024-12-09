@@ -6,16 +6,18 @@ from exception.exclusao_exception import ExclusaoException
 from exception.listagem_exception import ListagemException
 from exception.alteracao_exception import AlteracaoException
 
+from DAOs.carro_classico_dao import CarroClassicoDAO
+
 class ControladorCarrosClassicos:
 
     def __init__(self, controlador_sistema):
-        self.__carros = []
+        self.__carro_classico_DAO = CarroClassicoDAO()
         self.__tela_carro_classico = TelaCarroClassico()
         self.__controlador_sistema = controlador_sistema
 
     # Busca um carro na lista de carros pelo número VIN e o retorna.
     def pega_carro_por_vin(self, vin: str):
-        for carro in self.__carros:
+        for carro in self.__carro_classico_DAO.get_all():
             if carro.documentacao.vin == vin:
                 return carro
         return None
@@ -65,8 +67,8 @@ class ControladorCarrosClassicos:
                 unidades_existentes=dados_carro["unidades_existentes"]
             )
             
-            self.__carros.append(carro)
-            self.lista_carros()
+            self.__carro_classico_DAO.add(carro)
+            self.__tela_carro_classico.mostra_mensagem('Carro incluido com sucesso!')
         
         except InclusaoException as e:
             self.__tela_carro_classico.mostra_mensagem(f"ATENÇÃO: {e}")
@@ -77,7 +79,6 @@ class ControladorCarrosClassicos:
     # Modifica os dados de um carro existente na lista.
     def altera_carro(self):
         try:
-            self.lista_carros()
             vin_carro = self.__tela_carro_classico.seleciona_carro()
             carro = self.pega_carro_por_vin(vin_carro)
 
@@ -89,7 +90,9 @@ class ControladorCarrosClassicos:
             carro.documentacao.placa = novos_dados_carro["placa"]
             carro.quilometragem = novos_dados_carro["quilometragem"]
             carro.unidades_existentes = novos_dados_carro["unidades_existentes"]
-            self.lista_carros()
+
+            self.__carro_classico_DAO.update(carro)
+            self.__tela_carro_classico.mostra_mensagem('Carro alterado com sucesso!')
 
         except AlteracaoException as e:
             self.__tela_carro_classico.mostra_mensagem(f"ATENÇÃO: {e}")
@@ -115,8 +118,8 @@ class ControladorCarrosClassicos:
             carro.roda = roda
             carro.pintura = pintura
 
+            self.__carro_classico_DAO.update(carro)
             self.__tela_carro_classico.mostra_mensagem("Peças trocadas com sucesso!")
-            self.lista_carros()
 
         except InclusaoException as e:
             self.__tela_carro_classico.mostra_mensagem(f"ATENÇÃO: {e}")
@@ -125,18 +128,24 @@ class ControladorCarrosClassicos:
             self.__tela_carro_classico.mostra_mensagem(f"ATENÇÃO: {e}")
 
     # Exibe todos os carros cadastrados, mostrando VIN, modelo, ano e unidades existentes.
-    def lista_carros(self): 
+    def lista_carros(self):
         try:
-            if not self.__carros:
+            carros = self.__carro_classico_DAO.get_all()
+
+            if not carros:
                 raise ListagemException("A lista de carros está vazia.")
             
-            for carro in self.__carros:
-                self.__tela_carro_classico.mostra_carro({
+            lista_carros = [
+                {
                     "vin": carro.documentacao.vin,
                     "modelo": carro.documentacao.modelo,
                     "ano": carro.documentacao.ano,
                     "unidades_existentes": carro.unidades_existentes
-                })
+                }
+                for carro in carros
+            ]
+            
+            self.__tela_carro_classico.mostra_lista_carros(lista_carros)
         
         except ListagemException as e:
             self.__tela_carro_classico.mostra_mensagem(str(e))
@@ -148,40 +157,18 @@ class ControladorCarrosClassicos:
             vin_carro = self.__tela_carro_classico.seleciona_carro()
             carro = self.pega_carro_por_vin(vin_carro)
 
-            if carro is not None:
-                self.__carros.remove(carro)
-                self.__controlador_sistema.controlador_pessoas.remove_carro(vin_carro)
-                self.__tela_carro_classico.mostra_mensagem("Carro removido com sucesso!")
-                self.lista_carros()
-            else:
+            if not carro:
                 raise ExclusaoException("ATENÇÃO: Carro não encontrado.")
+            
+            self.__carro_classico_DAO.remove(carro.documentacao.vin)
+            self.__tela_carro_classico.mostra_mensagem("Carro removido com sucesso!")
             
         except ExclusaoException as e:
             self.__tela_carro_classico.mostra_mensagem(str(e))
 
-    # Adiciona um valor de venda ao carro, se ele ainda não foi vendido
-    def vende_carro(self, vin, preco):
-        carro = self.pega_carro_por_vin(vin)
-
-        if carro is not None and len(carro.precos_venda) == len(carro.precos_compra):
-            carro.add_preco_venda(preco)
-            return True
-
-        return False
-
-    # Adiciona um valor de compra ao carro, se ele ainda não foi comprado
-    def compra_carro(self, vin, preco):
-        carro = self.pega_carro_por_vin(vin)
-
-        if carro is not None and len(carro.precos_venda) > len(carro.precos_compra):
-            if self.__controlador_sistema.controlador_assoc_carro_inspecao.inclui_inspecao(vin, carro):
-                carro.add_preco_compra(preco)
-                return True
-        return False
-
     # Verifica se a peça já está sendo utilizada
     def verifica_disponibilidade_peca(self, tipo_peca, identificador, carro_atual=""):
-        for carro in self.__carros:
+        for carro in self.__carro_classico_DAO.get_all():
             if carro_atual == "" or carro.documentacao.vin != carro_atual:
                 if tipo_peca == "motor" and carro.motor.num_motor == identificador:
                     return True

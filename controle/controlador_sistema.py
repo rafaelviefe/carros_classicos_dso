@@ -3,6 +3,7 @@ from controle.controlador_pessoas import ControladorPessoas
 from controle.controlador_carros_classicos import ControladorCarrosClassicos
 from controle.controlador_assoc_carro_inspecao import ControladorAssocCarroInspecao
 from controle.controlador_pecas import ControladorPecas
+from controle.controlador_transferencias import ControladorTransferencias
 
 class ControladorSistema:
 
@@ -11,6 +12,7 @@ class ControladorSistema:
         self.__controlador_carros_classicos = ControladorCarrosClassicos(self)
         self.__controlador_assoc_carro_inspecao = ControladorAssocCarroInspecao(self)
         self.__controlador_pecas = ControladorPecas(self)
+        self.__controlador_transferencias = ControladorTransferencias(self)
         self.__tela_sistema = TelaSistema()
 
     @property
@@ -29,6 +31,10 @@ class ControladorSistema:
     def controlador_pecas(self):
         return self.__controlador_pecas
 
+    @property
+    def controlador_transferencias(self):
+        return self.__controlador_transferencias
+
     def inicializa_sistema(self):
         self.abre_tela()
 
@@ -44,6 +50,9 @@ class ControladorSistema:
     def cadastro_pecas(self):
         self.__controlador_pecas.abre_tela()
 
+    def cadastro_transferencias(self):
+        self.__controlador_transferencias.abre_tela()
+
     def encerra_sistema(self):
         exit(0)
 
@@ -53,6 +62,7 @@ class ControladorSistema:
             2: self.cadastro_carros,
             3: self.cadastro_inspecoes,
             4: self.cadastro_pecas,
+            5: self.cadastro_transferencias,
             0: self.encerra_sistema
         }
 

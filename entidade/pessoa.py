@@ -1,41 +1,35 @@
 from abc import ABC, abstractmethod
-from typing import List
-from entidade.carro_classico import CarroClassico
 
 class Pessoa(ABC):
-    @abstractmethod
-    def __init__(self, nome: str, documento: str, carros: List[CarroClassico] = None):
-        pass
+    def __init__(self, nome: str, documento: str):
+        if not isinstance(nome, str):
+            raise TypeError("O nome deve ser uma string")
+        if not isinstance(documento, str):
+            raise TypeError("O documento deve ser uma string")
+
+        self.__nome = nome
+        self.__documento = documento
 
     @property
-    @abstractmethod
     def nome(self) -> str:
-        pass
-    
+        return self.__nome
+
     @nome.setter
-    @abstractmethod
     def nome(self, nome: str):
-        pass
+        if not isinstance(nome, str):
+            raise TypeError("O nome deve ser uma string")
+        self.__nome = nome
 
     @property
-    @abstractmethod
-    def carros(self) -> List[CarroClassico]:
-        pass
-  
-    @abstractmethod
-    def add_carro(self, carro: CarroClassico):
-        pass
-
-    @abstractmethod
-    def del_carro(self, carro: CarroClassico):
-        pass
-
-    @property
-    @abstractmethod
     def documento(self) -> str:
-        pass
+        return self.__documento
 
     @documento.setter
-    @abstractmethod
     def documento(self, documento: str):
+        if not isinstance(documento, str):
+            raise TypeError("O documento deve ser uma string")
+        self.__documento = documento
+
+    @abstractmethod
+    def tipo(self) -> str:
         pass

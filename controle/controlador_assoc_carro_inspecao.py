@@ -4,12 +4,12 @@ from limite.tela_assoc_carro_inpecao import TelaAssocCarroInspecao
 from exception.inclusao_exception import InclusaoException
 from exception.exclusao_exception import ExclusaoException
 from exception.listagem_exception import ListagemException
-from exception.alteracao_exception import AlteracaoException
+
+from DAOs.assoc_carro_inspecao_dao import AssocCarroInspecaoDAO
 
 class ControladorAssocCarroInspecao:
     def __init__(self, controlador_sistema):
-        self.__associacoes = []
-        self.__registros = []
+        self.__assoc_carro_inspecao_DAO = AssocCarroInspecaoDAO()
         self.__tela_associacao = TelaAssocCarroInspecao()
         self.__controlador_sistema = controlador_sistema
         self.__id_inspecao = 0
@@ -32,7 +32,7 @@ class ControladorAssocCarroInspecao:
             
             try:
                 inspecao = AssocCarroInspecao(carro, id, apto, resultado)
-                self.__associacoes.append(inspecao)
+                self.__assoc_carro_inspecao_DAO.add(inspecao)
                 return apto
             except (TypeError, ValueError) as e:
                 self.__tela_associacao.mostra_mensagem(f"Erro ao criar inspeção: {str(e)}")
@@ -69,9 +69,9 @@ class ControladorAssocCarroInspecao:
         }
     
     def busca_inspecoes_por_vin(self, vin):
-        return [assoc for assoc in self.__associacoes if assoc.carro.documentacao.vin == vin]
+        return [assoc for assoc in self.__assoc_carro_inspecao_DAO.get_all() if assoc.carro.documentacao.vin == vin]
  
-     # Verifica o status de elegibilidade de inspeções anteriores de um veículo, permitindo ou não uma nova inspeção.
+    # Verifica o status de elegibilidade de inspeções anteriores de um veículo, permitindo ou não uma nova inspeção.
     def obtem_status_inspecao(self, vin):
         cont_inapto = 0
         inspecoes_encontradas = self.busca_inspecoes_por_vin(vin)[-3:]
@@ -104,29 +104,37 @@ class ControladorAssocCarroInspecao:
     def lista_inspecoes(self):
         vin = self.valida_vin()[0]
         try:
-            
             inspecoes = self.busca_inspecoes_por_vin(vin)
             if not inspecoes:
                 raise ListagemException(f"Nenhuma inspeção encontrada para o VIN {vin}.")
-            
-            for inspecao in inspecoes:
-                self.__tela_associacao.mostra_inspecao(inspecao)  
+
+            lista_atributos = [
+                {
+                    "id": assoc.id,
+                    "apto": assoc.inspecao.apto,
+                    "resultado": assoc.inspecao.resultado
+                }
+                for assoc in inspecoes
+            ]
+
+            self.__tela_associacao.mostra_inspecoes(lista_atributos)
             return inspecoes
-        
+
         except ListagemException as e:
             self.__tela_associacao.mostra_mensagem(str(e))
 
     # Exclui uma inspeção específica após listar e selecionar pelo ID.
     def exclui_inspecao(self):
+        vin = self.valida_vin()[0]
         try:
-            inspecoes = self.lista_inspecoes()
+            inspecoes = self.busca_inspecoes_por_vin(vin)
             if not inspecoes:
                 return
 
             id_selecionado = self.__tela_associacao.pega_id()
             for inspecao in inspecoes:
                 if inspecao.id == id_selecionado:
-                    self.__associacoes.remove(inspecao)
+                    self.__assoc_carro_inspecao_DAO.remove(inspecao.id)
                     self.__tela_associacao.mostra_mensagem("Inspeção excluída com sucesso!")
                     return
 
@@ -148,144 +156,31 @@ class ControladorAssocCarroInspecao:
         return [vin, carro]
 
     def gera_id(self):
-        self.__id_inspecao += 1
+        assocs = self.__assoc_carro_inspecao_DAO.get_all()
+
+        if assocs:
+            ultimo_id = next(reversed(assocs)).id
+        else:
+            ultimo_id = 0
+
+        self.__id_inspecao = ultimo_id + 1
         return self.__id_inspecao
     
-    def inclui_registro(self):
-        try:
-            data = self.__tela_associacao.obtem_data()
-            
-            # Verifica se já existe um registro para essa data e o exclui, se necessário
-            registro_existente = next((registro for registro in self.__registros if registro["data"] == data), None)
-            if registro_existente:
-                self.__registros.remove(registro_existente)
-                self.__tela_associacao.mostra_mensagem(f"Atualizando registro para a data: {data}.")
-
-            carros_registrados = []
-
-            for assoc in self.__associacoes:
-                carro_registrado = self.gera_registro_carro(assoc, data, carros_registrados)
-                if carro_registrado:
-                    carros_registrados.append(carro_registrado)
-
-            if not carros_registrados:
-                raise InclusaoException("Nenhuma inspeção foi encontrada neste período.")
-
-            registro = {
-                "data": data,
-                "carros": carros_registrados
-            }
-            
-            self.__registros.append(registro)
-            self.__tela_associacao.mostra_registro(registro)
-            
-        except InclusaoException as e:
-            self.__tela_associacao.mostra_mensagem(str(e))
-
-
-    def gera_registro_carro(self, assoc, data, carros_registrados):
-        carro = assoc.carro
-        vin = carro.documentacao.vin
-
-        vin_registrado = sum(1 for carro in carros_registrados if carro["vin"] == vin)
-        if not vin_registrado:
-            
-            inspecoes_mes = [
-                inspecao for inspecao in self.busca_inspecoes_por_vin(vin)
-                if inspecao.data == data
-            ]
-
-            if inspecoes_mes:
-                inspecoes_aprovadas = sum(1 for assoc in inspecoes_mes if assoc.inspecao.apto)
-                inspecoes_pendentes = sum(1 for assoc in inspecoes_mes if assoc.inspecao.resultado == "pendente")
-                inspecoes_reprovadas = len(inspecoes_mes) - inspecoes_aprovadas - inspecoes_pendentes
-                ultimo_status = inspecoes_mes[-1].inspecao.resultado
-
-                return {
-                    "vin": vin,
-                    "inspecoes_aprovadas": inspecoes_aprovadas,
-                    "inspecoes_pendentes": inspecoes_pendentes,
-                    "inspecoes_reprovadas": inspecoes_reprovadas,
-                    "ultimo_status": ultimo_status
-                }
-        return None
-    
-    def exclui_registro(self):
-        try:
-            self.lista_registros()
-            data = self.__tela_associacao.obtem_data()
-
-            # Busca o registro pela data fornecida e remove, se encontrado
-            registro_encontrado = next((registro for registro in self.__registros if registro["data"] == data), None)
-
-            if registro_encontrado:
-                self.__registros.remove(registro_encontrado)
-                self.__tela_associacao.mostra_mensagem("Registro excluído com sucesso!")
-            else:
-                raise ExclusaoException("Nenhum registro encontrado para a data especificada.")
-
-        except ExclusaoException as e:
-            self.__tela_associacao.mostra_mensagem(str(e))
-
-    def altera_registro(self):
-        try:
-            self.lista_registros()
-            self.__tela_associacao.mostra_mensagem("Precisamos da data do registro que deseja alterar.")
-            data_atual = self.__tela_associacao.obtem_data()
-
-            registro_existente = next((registro for registro in self.__registros if registro["data"] == data_atual), None)
-            if not registro_existente:
-                raise AlteracaoException("Nenhum registro encontrado para a data especificada.")
-
-            self.__tela_associacao.mostra_mensagem("Precisamos da nova data do registro.")
-            nova_data = self.__tela_associacao.obtem_data()
-
-            self.__registros.remove(registro_existente)
-            carros_registrados = []
-
-            for assoc in self.__associacoes:
-                carro_registrado = self.gera_registro_carro(assoc, nova_data, carros_registrados)
-                if carro_registrado:
-                    carros_registrados.append(carro_registrado)
-
-            novo_registro = {
-                "data": nova_data,
-                "carros": carros_registrados
-            }
-
-            if not novo_registro["carros"]:
-                raise AlteracaoException("Nenhuma inspeção encontrada neste período...")
-
-            self.__registros.append(novo_registro)
-            self.__tela_associacao.mostra_mensagem(f"Registro atualizado para a nova data: {nova_data}.")
-            self.__tela_associacao.mostra_registro(novo_registro)
-
-        except AlteracaoException as e:
-            self.__tela_associacao.mostra_mensagem(str(e))
-    
-    def lista_registros(self):
-        try:
-            if not self.__registros:
-                raise ListagemException("Nenhum registro foi encontrado.")
-            
-            for registro in self.__registros:
-                self.__tela_associacao.mostra_registro(registro)
-        
-        except ListagemException as e:
-            self.__tela_associacao.mostra_mensagem(str(e))
-
     def obtem_relatorio(self):
         data = self.__tela_associacao.obtem_data()
-        
-        registro_mes = next((registro for registro in self.__registros if registro["data"] == data), None)
-        
-        if not registro_mes:
-            self.__tela_associacao.mostra_mensagem("Nenhum registro encontrado para a data especificada.")
+
+        associacoes_filtradas = [
+            assoc for assoc in self.__assoc_carro_inspecao_DAO.get_all()
+            if assoc.data == data
+        ]
+
+        if not associacoes_filtradas:
+            self.__tela_associacao.mostra_mensagem("Nenhuma inspeção encontrada para a data especificada.")
             return
-        
-        total_aprovadas = sum(carro["inspecoes_aprovadas"] for carro in registro_mes["carros"])
-        total_pendentes = sum(carro["inspecoes_pendentes"] for carro in registro_mes["carros"])
-        total_reprovadas = sum(carro["inspecoes_reprovadas"] for carro in registro_mes["carros"])
+
+        total_aprovadas = sum(1 for assoc in associacoes_filtradas if assoc.inspecao.apto)
+        total_pendentes = sum(1 for assoc in associacoes_filtradas if assoc.inspecao.resultado == "pendente")
+        total_reprovadas = len(associacoes_filtradas) - total_aprovadas - total_pendentes
         total_inspecoes = total_aprovadas + total_pendentes + total_reprovadas
 
         porcentagem_aprovadas = (total_aprovadas / total_inspecoes) * 100 if total_inspecoes > 0 else 0
@@ -293,20 +188,27 @@ class ControladorAssocCarroInspecao:
         porcentagem_reprovadas = (total_reprovadas / total_inspecoes) * 100 if total_inspecoes > 0 else 0
 
         carros_por_inspecao = sorted(
-            [{"vin": carro["vin"], "qtd": carro["inspecoes_aprovadas"] + carro["inspecoes_pendentes"] + carro["inspecoes_reprovadas"]} 
-            for carro in registro_mes["carros"]],
+            [{"vin": vin, "qtd": sum(1 for a in associacoes_filtradas if a.carro.documentacao.vin == vin)}
+            for vin in set(assoc.carro.documentacao.vin for assoc in associacoes_filtradas)],
             key=lambda x: x["qtd"], reverse=True
         )[:3]
 
         carros_por_reprovacao = sorted(
-            [{"vin": carro["vin"], "porcentagem": ((carro["inspecoes_reprovadas"] + carro["inspecoes_pendentes"]) / (carro["inspecoes_aprovadas"] + carro["inspecoes_pendentes"] + carro["inspecoes_reprovadas"])) * 100}
-            for carro in registro_mes["carros"] if (carro["inspecoes_aprovadas"] + carro["inspecoes_pendentes"] + carro["inspecoes_reprovadas"]) > 0],
+            [{"vin": vin, 
+            "porcentagem": (sum(1 for a in associacoes_filtradas 
+                                if a.carro.documentacao.vin == vin 
+                                and a.inspecao.resultado in ["reprovado", "pendente"]) / 
+                            sum(1 for a in associacoes_filtradas if a.carro.documentacao.vin == vin)) * 100}
+            for vin in set(assoc.carro.documentacao.vin for assoc in associacoes_filtradas)],
             key=lambda x: x["porcentagem"], reverse=True
         )[:3]
 
         carros_por_aprovacao = sorted(
-            [{"vin": carro["vin"], "porcentagem": (carro["inspecoes_aprovadas"] / (carro["inspecoes_aprovadas"] + carro["inspecoes_pendentes"] + carro["inspecoes_reprovadas"])) * 100}
-            for carro in registro_mes["carros"] if (carro["inspecoes_aprovadas"] + carro["inspecoes_pendentes"] + carro["inspecoes_reprovadas"]) > 0],
+            [{"vin": vin, 
+            "porcentagem": (sum(1 for a in associacoes_filtradas 
+                                if a.carro.documentacao.vin == vin and a.inspecao.apto) / 
+                            sum(1 for a in associacoes_filtradas if a.carro.documentacao.vin == vin)) * 100}
+            for vin in set(assoc.carro.documentacao.vin for assoc in associacoes_filtradas)],
             key=lambda x: x["porcentagem"], reverse=True
         )[:3]
 
@@ -329,7 +231,7 @@ class ControladorAssocCarroInspecao:
             "carros_por_reprovacao": carros_por_reprovacao,
             "carros_por_aprovacao": carros_por_aprovacao
         }
-        
+
         self.__tela_associacao.mostra_relatorio(relatorio)
 
     def abre_tela(self):
@@ -338,12 +240,7 @@ class ControladorAssocCarroInspecao:
             2: self.lista_inspecoes,
             3: self.exclui_inspecao,
 
-            4: self.inclui_registro,
-            5: self.exclui_registro,
-            6: self.altera_registro,
-            7: self.lista_registros,
-
-            8: self.obtem_relatorio,
+            4: self.obtem_relatorio,
 
             0: self.__controlador_sistema.abre_tela
         }
